@@ -1,7 +1,8 @@
 import type { Core } from '@strapi/strapi';
+import { Context } from 'koa';
 
 const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
-  index(ctx) {
+  index(ctx: Context) {
     ctx.body = strapi
       .plugin('strapi-cache')
       // the name of the service file & the method.

@@ -1,1 +1,4 @@
-{}
+{
+    "strapi-cache.name": "Strapi Cache",
+    "strapi-cache.manage": "Manage your rest cache"
+}

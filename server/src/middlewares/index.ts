@@ -1,1 +1,5 @@
-export default {};
+import receive from './receive';
+
+export default {
+  receive,
+};
