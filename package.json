@@ -34,7 +34,6 @@
     "@strapi/design-system": "^2.0.0-rc.21",
     "@strapi/icons": "^2.0.0-rc.21",
     "lru-cache": "^11.1.0",
-    "murmurhash": "^2.0.1",
     "react-intl": "^7.1.10"
   },
   "devDependencies": {

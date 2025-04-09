@@ -1,9 +1,10 @@
 import type { Core } from '@strapi/strapi';
 import { LRUCache } from 'lru-cache';
 import { withTimeout } from '../../src/utils/withTimeout';
+import { CacheProvider, CacheService } from 'src/types/cache.types';
 
-const service = ({ strapi }: { strapi: Core.Strapi }) => {
-  let cacheInstance: any = null;
+const service = ({ strapi }: { strapi: Core.Strapi }): CacheService => {
+  let cacheInstance: CacheProvider | null = null;
   return {
     createCache() {
       if (cacheInstance) {
@@ -11,10 +12,10 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => {
       }
 
       let initialized = false;
-      let provider: LRUCache<number, any>;
-      console.log('Creating REST Cache provider...');
+      let provider: LRUCache<string, any>;
+      strapi.log.info('Creating REST Cache provider...');
 
-      const instance = {
+      const instance: CacheProvider = {
         init() {
           if (initialized) {
             strapi.log.error('REST Cache provider already initialized');
@@ -24,14 +25,16 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => {
           initialized = true;
           provider = new LRUCache({
             max: 1024 * 1014 * 10 /* 10MB */,
+            ttl: 1000 * 60 * 60 /* 1 hour */,
+            size: 1000,
           });
-          console.log('REST Cache provider initialized');
+          strapi.log.info('REST Cache provider initialized');
         },
 
         /**
-         * @param {number} key
+         * @param {string} key
          */
-        async get(key: number) {
+        async get(key: string) {
           if (!initialized) {
             strapi.log.error('REST Cache provider not initialized');
             return null;
@@ -55,11 +58,10 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => {
         },
 
         /**
-         * @param {number} key
+         * @param {string} key
          * @param {any} val
-         * @param {number=} maxAge
          */
-        async set(key: number, val: any, maxAge = 3600) {
+        async set(key: string, val: any) {
           if (!initialized) {
             strapi.log.error('REST Cache provider not initialized');
             return null;
@@ -71,7 +73,8 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => {
           }
 
           try {
-            return provider.set(key, val, { ttl: maxAge });
+            const size = provider.size;
+            return provider.set(key, val);
           } catch (error) {
             strapi.log.error(`REST Cache provider errored:`);
             strapi.log.error(error);
@@ -80,9 +83,9 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => {
         },
 
         /**
-         * @param {number} key
+         * @param {string} key
          */
-        async del(key: number) {
+        async del(key: string) {
           if (!initialized) {
             strapi.log.error('REST Cache provider not initialized');
             return null;
@@ -115,7 +118,7 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => {
           }
 
           try {
-            return Array.from(provider.keys()) as number[];
+            return Array.from(provider.keys()) as string[];
           } catch (error) {
             strapi.log.error(`REST Cache provider errored:`);
             strapi.log.error(error);
@@ -151,7 +154,7 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => {
 
         get ready() {
           if (!initialized) {
-            console.log('REST Cache provider not initialized');
+            strapi.log.info('REST Cache provider not initialized');
             return false;
           }
 
@@ -161,51 +164,10 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => {
         /**
          * @param {RegExp[]} regExps
          */
-        async clearByRegexp(regExps = []) {
+        async clearByRegexp(regExps: RegExp[] = []) {
           const keys = (await this.keys()) || [];
-
-          /**
-           * @param {number} key
-           */
-          // const shouldDel = (key: number) =>
-          //   regExps.find((r) => r.test(key.toString().replace(keysPrefix, '')));
-
-          /**
-           * @param {number} key
-           */
-          const del = (key: number) => this.del(key);
-
-          await Promise.all(keys.map(del));
-        },
-
-        /**
-         * @param {string} uid
-         * @param {any} params
-         * @param {boolean=} wildcard
-         */
-        async clearByUid(uid: string, params = {}, wildcard = false) {
-          // const { strategy } = strapi.config.get('plugin.rest-cache');
-
-          const cacheConfigService = strapi.plugin('rest-cache').service('cacheConfig');
-
-          const cacheConf = cacheConfigService.get(uid);
-
-          if (!cacheConf) {
-            throw new Error(
-              `Unable to clear cache: no configuration found for contentType "${uid}"`
-            );
-          }
-
-          const regExps = cacheConfigService.getCacheKeysRegexp(uid, params, wildcard);
-
-          for (const relatedUid of cacheConf.relatedContentTypeUid) {
-            if (cacheConfigService.isCached(relatedUid)) {
-              // clear all cache because we can't predict uri params
-              regExps.push(...cacheConfigService.getCacheKeysRegexp(relatedUid, {}, true));
-            }
-          }
-
-          await this.clearByRegexp(regExps);
+          const toDelete = keys.filter((key) => regExps.some((re) => re.test(key)));
+          await Promise.all(toDelete.map((key) => this.del(key)));
         },
       };
       cacheInstance = instance;

@@ -1,11 +1,13 @@
-import murmurhash from 'murmurhash';
 import { Context } from 'koa';
 import { generateCacheKey } from '../../src/utils/key';
+import { CacheService } from 'src/types/cache.types';
 
 const middleware = async (ctx: Context, next: any) => {
-  const cacheStore = strapi.plugin('strapi-cache').services.service.createCache();
+  const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
+  const cacheStore = cacheService.createCache();
+  const { url } = ctx.request;
 
-  const key = murmurhash.v3(generateCacheKey(ctx));
+  const key = generateCacheKey(ctx);
   const cacheEntry = await cacheStore.get(key);
 
   if (cacheEntry) {
@@ -18,9 +20,9 @@ const middleware = async (ctx: Context, next: any) => {
 
   await next();
 
-  if (ctx.body && ctx.status >= 200 && ctx.status <= 300) {
+  if (ctx.body && url.startsWith('/api') && ctx.status >= 200 && ctx.status <= 300) {
     console.log('setting cache with key ', key);
-    await cacheStore.set(key, ctx.body, 3600);
+    await cacheStore.set(key, ctx.body);
   }
 };
 

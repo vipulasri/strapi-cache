@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Table,
@@ -17,10 +17,26 @@ import { Eye, Trash } from '@strapi/icons';
 import { Modal } from '@strapi/design-system';
 import { Button } from '@strapi/design-system';
 import { Field } from '@strapi/design-system';
+import { useStrapiApp } from '@strapi/strapi/admin';
 
 const CacheTable: React.FC<{ entries: any[] }> = ({ entries }) => {
+  const [keys, setKeys] = React.useState<number[]>([]);
   const COL_COUNT = 7;
   const ROW_COUNT = entries.length;
+  const getPlugin = useStrapiApp('strapi-cache', (state) => state.getPlugin);
+  const plugin = getPlugin('strapi-cache');
+
+  console.log('CacheTable', plugin);
+  // const cacheStore = strapi
+  // useEffect(() => {
+  //   const fetchKeys = async () => {
+  //     const keys = await cacheStore.keys();
+  //     console.log('Cache keys:', keys);
+  //     setKeys(keys);
+  //   };
+
+  //   fetchKeys();
+  // }, [cacheStore]);
 
   return (
     <Box padding={8} background="neutral100">

@@ -2,7 +2,7 @@ import { Main } from '@strapi/design-system';
 import { useIntl } from 'react-intl';
 
 import { getTranslation } from '../utils/getTranslation';
-import { Layouts } from '@strapi/strapi/admin';
+import { Layouts, useStrapiApp } from '@strapi/strapi/admin';
 import CacheTable from '../components/CacheTable';
 
 const HomePage = () => {

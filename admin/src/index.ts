@@ -24,6 +24,19 @@ export default {
       isReady: false,
       name: PLUGIN_ID,
     });
+
+    //   { id: String, intlLabel: { id: String, defaultMessage: String } }, // Section to create
+    //   [
+    //     // links
+    //     {
+    //       intlLabel: { id: String, defaultMessage: String },
+    //       id: String,
+    //       to: String,
+    //       Component: myComponent,
+    //       // permissions: Object[],
+    //     },
+    //   ]
+    // );
   },
 
   async registerTrads({ locales }: { locales: string[] }) {
