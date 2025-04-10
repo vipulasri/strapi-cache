@@ -3,7 +3,7 @@ import middlewares from './middlewares';
 
 const register = ({ strapi }: { strapi: Core.Strapi }) => {
   console.log('Registering REST Cache plugin...');
-  strapi.server.use(middlewares.receive);
+  strapi.server.use(middlewares.cache);
 };
 
 export default register;

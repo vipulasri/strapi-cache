@@ -1,5 +1,5 @@
-import receive from './receive';
+import cache from './cache';
 
 export default {
-  receive,
+  cache,
 };
