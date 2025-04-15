@@ -1,6 +1,6 @@
 {
-  "version": "0.0.0",
-  "keywords": [],
+  "version": "1.0.0",
+  "keywords": ["strapi cache", "strapi rest cache", "strapi 5 cache","strapi v5 cache plugin"],
   "type": "commonjs",
   "exports": {
     "./package.json": "./package.json",
