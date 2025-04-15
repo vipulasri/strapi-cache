@@ -1,10 +1,10 @@
 import type { Core } from '@strapi/strapi';
-import { invalidateCache } from './utils/invalidateCache';
+import { invalidateCache, invalidateGraphqlCache } from './utils/invalidateCache';
 import { CacheService } from './types/cache.types';
+import { loggy } from './utils/log';
 
 const bootstrap = ({ strapi }: { strapi: Core.Strapi }) => {
-  console.log('Initializing REST Cache plugin...');
-
+  loggy.info('Initializing');
   try {
     const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
     const cacheStore = cacheService.createCache();
@@ -13,25 +13,27 @@ const bootstrap = ({ strapi }: { strapi: Core.Strapi }) => {
     strapi.db.lifecycles.subscribe({
       async afterCreate(event) {
         await invalidateCache(event, cacheStore, strapi);
+        await invalidateGraphqlCache(event, cacheStore, strapi);
       },
       async afterUpdate(event) {
         await invalidateCache(event, cacheStore, strapi);
+        await invalidateGraphqlCache(event, cacheStore, strapi);
       },
       async afterDelete(event) {
         await invalidateCache(event, cacheStore, strapi);
+        await invalidateGraphqlCache(event, cacheStore, strapi);
       },
     });
 
     if (!cacheStore) {
-      strapi.log.error('REST Cache plugin could not be initialized');
+      loggy.error('Plugin could not be initialized');
       return;
     }
   } catch (error) {
-    strapi.log.error('Error initializing REST Cache plugin:', error);
+    loggy.error('Plugin could not be initialized');
     return;
   }
-
-  console.log('REST Cache plugin initialized');
+  loggy.info('Plugin initialized');
 };
 
 export default bootstrap;

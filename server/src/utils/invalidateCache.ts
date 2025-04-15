@@ -1,16 +1,16 @@
 import { Core } from '@strapi/strapi';
 import { CacheProvider } from 'src/types/cache.types';
+import { loggy } from './log';
 
 export async function invalidateCache(event: any, cacheStore: CacheProvider, strapi: Core.Strapi) {
   const { model } = event;
   const uid = model.uid;
-  console.log(model);
 
   try {
     const contentType = strapi.contentType(uid);
 
     if (!contentType || !contentType.kind) {
-      strapi.log.info(`Content type ${uid} not found`);
+      loggy.info(`Content type ${uid} not found`);
       return;
     }
 
@@ -22,8 +22,25 @@ export async function invalidateCache(event: any, cacheStore: CacheProvider, str
     const regex = new RegExp(`^.*:${apiPath}(/.*)?(\\?.*)?$`);
 
     await cacheStore.clearByRegexp([regex]);
-    strapi.log.info(`Invalidated cache for ${apiPath}`);
+    loggy.info(`Invalidated cache for ${apiPath}`);
   } catch (error) {
-    strapi.log.error('Cache invalidation error:', error);
+    loggy.error('Cache invalidation error:');
+    loggy.error(error);
+  }
+}
+
+export async function invalidateGraphqlCache(
+  event: any,
+  cacheStore: CacheProvider,
+  strapi: Core.Strapi
+) {
+  try {
+    const graphqlRegex = new RegExp(`^POST:\/graphql(:.*)?$`);
+
+    await cacheStore.clearByRegexp([graphqlRegex]);
+    loggy.info(`Invalidated cache for ${graphqlRegex}`);
+  } catch (error) {
+    loggy.error('Cache invalidation error:');
+    loggy.error(error);
   }
 }

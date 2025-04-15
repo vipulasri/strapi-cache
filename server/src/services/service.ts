@@ -1,7 +1,8 @@
 import type { Core } from '@strapi/strapi';
 import { LRUCache } from 'lru-cache';
 import { withTimeout } from '../../src/utils/withTimeout';
-import { CacheProvider, CacheService } from 'src/types/cache.types';
+import { CacheProvider, CacheService } from '../types/cache.types';
+import { loggy } from '../utils/log';
 
 const service = ({ strapi }: { strapi: Core.Strapi }): CacheService => {
   let cacheInstance: CacheProvider | null = null;
@@ -13,12 +14,13 @@ const service = ({ strapi }: { strapi: Core.Strapi }): CacheService => {
 
       let initialized = false;
       let provider: LRUCache<string, any>;
-      strapi.log.info('Creating REST Cache provider...');
+
+      loggy.info('Creating provider');
 
       const instance: CacheProvider = {
         init() {
           if (initialized) {
-            strapi.log.error('REST Cache provider already initialized');
+            loggy.error('Provider already initialized');
             return;
           }
 
@@ -28,7 +30,7 @@ const service = ({ strapi }: { strapi: Core.Strapi }): CacheService => {
             ttl: 1000 * 60 * 60 /* 1 hour */,
             size: 1000,
           });
-          strapi.log.info('REST Cache provider initialized');
+          loggy.info('Provider initialized');
         },
 
         /**
@@ -36,22 +38,22 @@ const service = ({ strapi }: { strapi: Core.Strapi }): CacheService => {
          */
         async get(key: string) {
           if (!initialized) {
-            strapi.log.error('REST Cache provider not initialized');
+            loggy.error('Provider not initialized');
             return null;
           }
 
           if (!this.ready) {
-            strapi.log.error('REST Cache provider not ready');
+            loggy.error('Provider not ready');
             return null;
           }
 
           const getTimeout = 1000;
           return withTimeout(async () => await provider.get(key), getTimeout).catch((error) => {
             if (error?.message === 'timeout') {
-              strapi.log.error(`REST Cache provider timed-out after ${getTimeout}ms.`);
+              loggy.error(`Provider timed-out after ${getTimeout}ms.`);
             } else {
-              strapi.log.error(`REST Cache provider errored:`);
-              strapi.log.error(error);
+              loggy.error(`Provider errored:`);
+              loggy.error(error);
             }
             return null;
           });
@@ -63,12 +65,12 @@ const service = ({ strapi }: { strapi: Core.Strapi }): CacheService => {
          */
         async set(key: string, val: any) {
           if (!initialized) {
-            strapi.log.error('REST Cache provider not initialized');
+            loggy.error('Provider not initialized');
             return null;
           }
 
           if (!this.ready) {
-            strapi.log.error('REST Cache provider not ready');
+            loggy.error('Provider not ready');
             return null;
           }
 
@@ -76,8 +78,8 @@ const service = ({ strapi }: { strapi: Core.Strapi }): CacheService => {
             const size = provider.size;
             return provider.set(key, val);
           } catch (error) {
-            strapi.log.error(`REST Cache provider errored:`);
-            strapi.log.error(error);
+            loggy.error(`Provider errored:`);
+            loggy.error(error);
             return null;
           }
         },
@@ -87,74 +89,74 @@ const service = ({ strapi }: { strapi: Core.Strapi }): CacheService => {
          */
         async del(key: string) {
           if (!initialized) {
-            strapi.log.error('REST Cache provider not initialized');
+            loggy.error('Provider not initialized');
             return null;
           }
 
           if (!this.ready) {
-            strapi.log.error('REST Cache provider not ready');
+            loggy.error('Provider not ready');
             return null;
           }
 
           try {
-            strapi.log.info(`PURGING KEY: ${key}`);
+            loggy.info(`PURGING KEY: ${key}`);
             return provider.delete(key);
           } catch (error) {
-            strapi.log.error(`REST Cache provider errored:`);
-            strapi.log.error(error);
+            loggy.error(`Provider errored:`);
+            loggy.error(error);
             return null;
           }
         },
 
         async keys() {
           if (!initialized) {
-            strapi.log.error('REST Cache provider not initialized');
+            loggy.error('Provider not initialized');
             return null;
           }
 
           if (!this.ready) {
-            strapi.log.error('REST Cache provider not ready');
+            loggy.error('Provider not ready');
             return null;
           }
 
           try {
-            return Array.from(provider.keys()) as string[];
+            return Array.from(provider.keys());
           } catch (error) {
-            strapi.log.error(`REST Cache provider errored:`);
-            strapi.log.error(error);
+            loggy.error(`Provider errored:`);
+            loggy.error(error);
             return null;
           }
         },
 
         async reset() {
           if (!initialized) {
-            strapi.log.error('REST Cache provider not initialized');
+            loggy.error('Provider not initialized');
             return null;
           }
 
           if (!this.ready) {
-            strapi.log.error('REST Cache provider not ready');
+            loggy.error('Provider not ready');
             return null;
           }
 
           try {
             const allKeys = await this.keys();
             if (!allKeys) {
-              strapi.log.error('REST Cache provider not ready');
+              loggy.error('Provider not ready');
               return null;
             }
-            strapi.log.info(`PURGING ALL KEYS: ${allKeys.length}`);
+            loggy.info(`PURGING ALL KEYS: ${allKeys.length}`);
             return this.keys().then((keys) => Promise.all(allKeys.map((key) => this.del(key))));
           } catch (error) {
-            strapi.log.error(`REST Cache provider errored:`);
-            strapi.log.error(error);
+            loggy.error(`Provider errored:`);
+            loggy.error(error);
             return null;
           }
         },
 
         get ready() {
           if (!initialized) {
-            strapi.log.info('REST Cache provider not initialized');
+            loggy.info('Provider not initialized');
             return false;
           }
 

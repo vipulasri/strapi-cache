@@ -1,6 +1,7 @@
 import { Context } from 'koa';
 import { generateCacheKey } from '../utils/key';
 import { CacheService } from 'src/types/cache.types';
+import { loggy } from '../utils/log';
 
 const middleware = async (ctx: Context, next: any) => {
   const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
@@ -12,7 +13,7 @@ const middleware = async (ctx: Context, next: any) => {
   const noCache = cacheControlHeader && cacheControlHeader.includes('no-cache');
 
   if (cacheEntry && !noCache) {
-    console.log('cache HIT with key ', key);
+    loggy.info(`HIT with key: ${key}`);
     ctx.status = 200;
     ctx.body = cacheEntry.body;
     ctx.set(cacheEntry.headers);
@@ -21,8 +22,14 @@ const middleware = async (ctx: Context, next: any) => {
 
   await next();
 
-  if (ctx.body && url.startsWith('/api') && ctx.status >= 200 && ctx.status <= 300) {
-    console.log('setting cache with key ', key);
+  if (
+    ctx.body &&
+    ctx.method === 'GET' &&
+    ctx.status >= 200 &&
+    ctx.status <= 300 &&
+    url.startsWith('/api')
+  ) {
+    loggy.info(`MISS with key: ${key}`);
     await cacheStore.set(key, {
       body: ctx.body,
       headers: ctx.response.headers,
