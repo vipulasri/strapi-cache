@@ -3,29 +3,6 @@ import { Initializer } from './components/Initializer';
 
 export default {
   register(app: any) {
-    app.createSettingSection(
-      {
-        id: PLUGIN_ID,
-        intlLabel: {
-          id: `strapi-cache.name`,
-          defaultMessage: `Strapi Cache`,
-        },
-      },
-      [
-        {
-          intlLabel: {
-            id: `strapi-cache.settings`,
-            defaultMessage: 'Cache Settings',
-          },
-          id: 'settings',
-          to: `${PLUGIN_ID}`,
-          Component: () => {
-            return import('./pages/SettingsPage');
-          },
-        },
-      ]
-    );
-
     app.registerPlugin({
       id: PLUGIN_ID,
       initializer: Initializer,

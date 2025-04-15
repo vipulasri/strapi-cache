@@ -25,10 +25,16 @@ const service = ({ strapi }: { strapi: Core.Strapi }): CacheService => {
           }
 
           initialized = true;
+          const max = strapi.plugin('strapi-cache').config('max');
+          const ttl = strapi.plugin('strapi-cache').config('ttl');
+          const size = strapi.plugin('strapi-cache').config('size');
+          const allowStale = strapi.plugin('strapi-cache').config('allowStale');
+
           provider = new LRUCache({
-            max: 1024 * 1014 * 10 /* 10MB */,
-            ttl: 1000 * 60 * 60 /* 1 hour */,
-            size: 1000,
+            max: Number(max),
+            ttl: Number(ttl),
+            size: Number(size),
+            allowStale: allowStale ? true : false,
           });
           loggy.info('Provider initialized');
         },
