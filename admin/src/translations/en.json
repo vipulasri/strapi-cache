@@ -1,4 +1,6 @@
 {
     "strapi-cache.name": "Strapi Cache",
-    "strapi-cache.manage": "Manage your rest cache"
+    "strapi-cache.settings": "Cache Settings",
+    "strapi-cache.view.settings.title": "Strapi Cache Settings",
+    "strapi-cache.view.settings.subtitle": "Configure what to cache"
 }
