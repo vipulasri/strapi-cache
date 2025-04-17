@@ -75,5 +75,9 @@
   "name": "strapi-cache",
   "description": "A LRU-Cache plugin for strapi v5",
   "license": "MIT",
-  "author": "TupiC <christoph.tupi@gmail.com>"
+  "author": "TupiC <christoph.tupi@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TupiC/strapi-cache.git"
+  }
 }
