@@ -5,6 +5,7 @@ export default {
     ttl: 1000 * 60 * 60,
     size: 1024 * 1014 * 10,
     allowStale: false,
+    contentTypes: [],
   }),
   validator: (config) => {
     if (typeof config.debug !== 'boolean') {
@@ -21,6 +22,12 @@ export default {
     }
     if (typeof config.allowStale !== 'boolean') {
       throw new Error(`Invalid config: allowStale must be a boolean`);
+    }
+    if (
+      !Array.isArray(config.cacheableRoutes) ||
+      config.cacheableRoutes.some((item) => typeof item !== 'string')
+    ) {
+      throw new Error(`Invalid config: cacheableRoutes must be an string array`);
     }
   },
 };
