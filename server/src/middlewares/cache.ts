@@ -18,9 +18,9 @@ const middleware = async (ctx: Context, next: any) => {
 
   if (cacheEntry && !noCache) {
     loggy.info(`HIT with key: ${key}`);
-    ctx.status = 304;
-    ctx.body = null;
-    ctx.set(cacheEntry.headers);
+    ctx.status = 200;
+    ctx.body = cacheEntry;
+    ctx.set({ 'Access-Control-Allow-Origin': '*' });
     return;
   }
 
@@ -30,14 +30,11 @@ const middleware = async (ctx: Context, next: any) => {
     ctx.body &&
     ctx.method === 'GET' &&
     ctx.status >= 200 &&
-    ctx.status <= 300 &&
+    ctx.status < 300 &&
     routeIsCachable
   ) {
     loggy.info(`MISS with key: ${key}`);
-    await cacheStore.set(key, {
-      body: ctx.body,
-      headers: ctx.response.headers,
-    });
+    await cacheStore.set(key, ctx.body);
   }
 };
 

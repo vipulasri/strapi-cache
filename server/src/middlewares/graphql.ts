@@ -45,7 +45,7 @@ const middleware = async (ctx: any, next: any) => {
     ctx.body &&
     ctx.method === 'POST' &&
     ctx.status >= 200 &&
-    ctx.status <= 300 &&
+    ctx.status < 300 &&
     url.startsWith('/graphql')
   ) {
     loggy.info(`MISS with key: ${key}`);
