@@ -41,19 +41,19 @@ In your Strapi project, navigate to `config/plugins.js` and add the following co
 
 ```javascript
 // config/plugins.{js,ts}
-  'strapi-cache': {
-    enabled: true,
-    config: {
-      debug: false, // Enable debug logs
-      max: 1000, // Maximum number of items in the cache (only for memory cache)
-      ttl: 1000 * 60 * 60, // Time to live for cache items (1 hour)
-      size: 1024 * 1024 * 1024, // Maximum size of the cache (1 GB) (only for memory cache)
-      allowStale: false, // Allow stale cache items (only for memory cache)
-      cacheableRoutes: ['/api/products', '/api/categories'], // Caches routes which start with these paths (if empty array, all '/api' routes are cached)
-      provider: 'memory', // Cache provider ('memory' or 'redis')
-      redisUrl: env('REDIS_URL', 'redis://localhost:6379'), // Redis URL (if using Redis)
-    },
+'strapi-cache': {
+  enabled: true,
+  config: {
+    debug: false, // Enable debug logs
+    max: 1000, // Maximum number of items in the cache (only for memory cache)
+    ttl: 1000 * 60 * 60, // Time to live for cache items (1 hour)
+    size: 1024 * 1024 * 1024, // Maximum size of the cache (1 GB) (only for memory cache)
+    allowStale: false, // Allow stale cache items (only for memory cache)
+    cacheableRoutes: ['/api/products', '/api/categories'], // Caches routes which start with these paths (if empty array, all '/api' routes are cached)
+    provider: 'memory', // Cache provider ('memory' or 'redis')
+    redisUrl: env('REDIS_URL', 'redis://localhost:6379'), // Redis URL (if using Redis)
   },
+},
 ```
 
 ## 🗂️ How It Works
@@ -71,6 +71,38 @@ In your Strapi project, navigate to `config/plugins.js` and add the following co
 - [ ] **Purge Cache in Settings**: Add a UI option in the Strapi admin panel to manually purge the cache.
 - [x] **Route/Content-Type Specific Caching**: Allow users to define which routes should be cached based.
 - [x] **Switchable Cache Providers**: Explore support for other caching providers like Redis for distributed caching.
+
+## 🛑 Problems
+
+If you encounter any issues, please feel free to open an issue on the [GitHub repo](https://github.com/TupiC/strapi-cache/issues/new).
+
+## 🛠️ Troubleshooting
+
+If you encounter an error like:
+
+```
+Access to fetch at 'http://your-backend.com' from origin 'http://your-origin.com' has been blocked by CORS policy:
+Request header field cache-control is not allowed by Access-Control-Allow-Headers in preflight response.
+```
+
+You might need to adjust your CORS middlware settings in Strapi:
+
+```javascript
+// config/middlewares.{js,ts}
+'strapi::cors';
+```
+
+with:
+
+```javascript
+// config/middlewares.{js,ts}
+{
+  name: "strapi::cors",
+  config: {
+    headers: ["Content-Type", "Authorization", "Cache-Control"], // Add 'Cache-Control' to the allowed headers
+  },
+},
+```
 
 ## 🛠️ Contributing
 
