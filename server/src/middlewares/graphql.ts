@@ -27,6 +27,14 @@ const middleware = async (ctx: any, next: any) => {
   ctx.request.req = clonedReq;
 
   const key = generateGraphqlCacheKey(body);
+
+  const isIntrospectionQuery = body.includes('IntrospectionQuery');
+  if (isIntrospectionQuery) {
+    loggy.info('Skipping cache for introspection query');
+    await next();
+    return;
+  }
+
   const cacheEntry = await cacheStore.get(key);
   const cacheControlHeader = ctx.request.headers['cache-control'];
   const noCache = cacheControlHeader && cacheControlHeader.includes('no-cache');

@@ -52,7 +52,7 @@ In your Strapi project, navigate to `config/plugins.js` and add the following co
       cacheableRoutes: ['/api/products', '/api/categories'], // Caches routes which start with these paths (if empty array, all '/api' routes are cached)
       provider: 'memory', // Cache provider ('memory' or 'redis')
       redisUrl: env('REDIS_URL', 'redis://localhost:6379'), // Redis URL (if using Redis)
-      },
+    },
   },
 ```
 
