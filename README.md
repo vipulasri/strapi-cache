@@ -1,7 +1,7 @@
 # 🧠 strapi-cache
 
 **A powerful LRU-Cache plugin for Strapi v5**  
-Boost your API performance with automatic in-memory caching for REST and GraphQL requests.
+Boost your API performance with automatic in-memory or Redis caching for REST and GraphQL requests.
 
 ![npm version](https://img.shields.io/badge/version-1.0.0-blue)
 ![Strapi Version](https://img.shields.io/badge/strapi-v5-blue)
@@ -17,6 +17,7 @@ Boost your API performance with automatic in-memory caching for REST and GraphQL
 - ♻️ **LRU (Least Recently Used) caching strategy**
 - 🔧 Simple integration with Strapi config
 - 📦 Lightweight with zero overhead
+- 🗄️ **Supports in-memory and Redis caching**
 
 ---
 
@@ -44,22 +45,24 @@ In your Strapi project, navigate to `config/plugins.js` and add the following co
     enabled: true,
     config: {
       debug: false, // Enable debug logs
-      max: 1000, // Maximum number of items in the cache
+      max: 1000, // Maximum number of items in the cache (only for memory cache)
       ttl: 1000 * 60 * 60, // Time to live for cache items (1 hour)
-      size: 1024 * 1024 * 1024, // Maximum size of the cache (1 GB)
-      allowStale: false, // Allow stale cache items
+      size: 1024 * 1024 * 1024, // Maximum size of the cache (1 GB) (only for memory cache)
+      allowStale: false, // Allow stale cache items (only for memory cache)
       cacheableRoutes: ['/api/products', '/api/categories'], // Caches routes which start with these paths (if empty array, all '/api' routes are cached)
-    },
+      provider: 'memory', // Cache provider ('memory' or 'redis')
+      redisUrl: env('REDIS_URL', 'redis://localhost:6379'), // Redis URL (if using Redis)
+      },
   },
 ```
 
 ## 🗂️ How It Works
 
-- **In-Memory Storage**: The plugin keeps cached data in memory using an LRU strategy. It checks the cache before querying the database.
-- **Powered by `lru-cache`**: Uses the popular `lru-cache` library for managing the cache efficiently.
+- **Storage**: The plugin keeps cached data in memory or Redis, depending on the configuration.
+- **Packages**: Uses [lru-cache](https://github.com/isaacs/node-lru-cache) for in-memory cache. Uses [ioredis](https://github.com/redis/ioredis) for Redis caching.
 - **Automatic Invalidation**: Cache is cleared automatically when content is updated, deleted, or created. (GraphQL cache clears on any content update.)
 - **`no-cache` Header Support**: Respects the `no-cache` header, letting you skip the cache by setting `Cache-Control: no-cache` in your request.
-- **Default Cached Requests**: By default, caches all GET requests to `/api` and POST requests to `/graphql`. You can customize which content types to cache in the settings (only for GET requests).
+- **Default Cached Requests**: By default, caches all GET requests to `/api` and POST requests to `/graphql`. You can customize which content types to cache in the config (only for GET requests).
 
 ## 🔮 Planned Features
 
@@ -67,7 +70,7 @@ In your Strapi project, navigate to `config/plugins.js` and add the following co
 - [x] **GraphQL Caching**: Cache GraphQL queries.
 - [ ] **Purge Cache in Settings**: Add a UI option in the Strapi admin panel to manually purge the cache.
 - [x] **Route/Content-Type Specific Caching**: Allow users to define which routes should be cached based.
-- [ ] **Switchable Cache Providers**: Explore support for other caching providers like Redis for distributed caching.
+- [x] **Switchable Cache Providers**: Explore support for other caching providers like Redis for distributed caching.
 
 ## 🛠️ Contributing
 
