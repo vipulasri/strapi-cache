@@ -2,6 +2,7 @@ import type { Core } from '@strapi/strapi';
 import { invalidateCache, invalidateGraphqlCache } from './utils/invalidateCache';
 import { CacheService } from './types/cache.types';
 import { loggy } from './utils/log';
+import { actions } from './permissions';
 
 const bootstrap = ({ strapi }: { strapi: Core.Strapi }) => {
   loggy.info('Initializing');
@@ -34,6 +35,8 @@ const bootstrap = ({ strapi }: { strapi: Core.Strapi }) => {
     return;
   }
   loggy.info('Plugin initialized');
+
+  strapi.admin.services.permission.actionProvider.registerMany(actions);
 };
 
 export default bootstrap;
