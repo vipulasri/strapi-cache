@@ -1,13 +1,13 @@
 import type { Core } from '@strapi/strapi';
 import { resolveCacheProvider } from './resolver';
-import { CacheService } from '../../src/types/cache.types';
+import { CacheProvider, CacheService } from '../../src/types/cache.types';
 import { loggy } from '../../src/utils/log';
 
 const service = ({ strapi }: { strapi: Core.Strapi }): CacheService => {
-  let instance = null;
+  let instance: null | CacheProvider = null;
 
   return {
-    createCache() {
+    getCacheInstance() {
       if (!instance) {
         loggy.info('Initializing cache service from provider config...');
         instance = resolveCacheProvider(strapi);

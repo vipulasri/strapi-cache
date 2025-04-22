@@ -56,6 +56,15 @@ In your Strapi project, navigate to `config/plugins.js` and add the following co
 },
 ```
 
+## 🔍 Routes
+
+The plugin creates two new routes
+
+- `POST /strapi-cache/purge-cache` (purges the whole cache)
+- `POST /strapi-cache/purge-cache/:key` (purges cache entries with have the key in the cache key)
+
+Both routes are protected by the policies `admin::isAuthenticatedAdmin` and `plugin::strapi-cache.purge-cache`. The second policy can be managed in the plugin's permissions section under the settings.
+
 ## 🗂️ How It Works
 
 - **Storage**: The plugin keeps cached data in memory or Redis, depending on the configuration.
@@ -68,7 +77,8 @@ In your Strapi project, navigate to `config/plugins.js` and add the following co
 
 - [x] **Cache Invalidation**: Automatically invalidate cache on content updates, deletions, or creations.
 - [x] **GraphQL Caching**: Cache GraphQL queries.
-- [ ] **Purge Cache in Settings**: Add a UI option in the Strapi admin panel to manually purge the cache.
+- [x] **Purge Cache Button**: Add a UI option in the Strapi admin panel to manually purge the cache for content-types.
+- [ ] **Purge Whole Cache Button**: Add a UI option in the Strapi admin settings panel to purge the whole cache.
 - [x] **Route/Content-Type Specific Caching**: Allow users to define which routes should be cached based.
 - [x] **Switchable Cache Providers**: Explore support for other caching providers like Redis for distributed caching.
 

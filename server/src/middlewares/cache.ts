@@ -6,7 +6,7 @@ import { loggy } from '../utils/log';
 const middleware = async (ctx: Context, next: any) => {
   const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
   const cacheableRoutes = strapi.plugin('strapi-cache').config('cacheableRoutes') as string[];
-  const cacheStore = cacheService.createCache();
+  const cacheStore = cacheService.getCacheInstance();
   const { url } = ctx.request;
   const key = generateCacheKey(ctx);
   const cacheEntry = await cacheStore.get(key);

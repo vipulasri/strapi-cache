@@ -2,10 +2,11 @@ import rawBody from 'raw-body';
 import { generateGraphqlCacheKey } from '../utils/key';
 import { Readable } from 'stream';
 import { loggy } from '../utils/log';
+import { CacheService } from 'src/types/cache.types';
 
 const middleware = async (ctx: any, next: any) => {
-  const cacheService = strapi.plugin('strapi-cache').services.service;
-  const cacheStore = cacheService.createCache();
+  const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
+  const cacheStore = cacheService.getCacheInstance();
   const { url } = ctx.request;
 
   const originalReq = ctx.req;

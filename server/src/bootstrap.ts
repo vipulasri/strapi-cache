@@ -8,7 +8,7 @@ const bootstrap = ({ strapi }: { strapi: Core.Strapi }) => {
   loggy.info('Initializing');
   try {
     const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
-    const cacheStore = cacheService.createCache();
+    const cacheStore = cacheService.getCacheInstance();
     cacheStore.init();
 
     strapi.db.lifecycles.subscribe({

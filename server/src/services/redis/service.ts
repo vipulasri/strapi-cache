@@ -7,7 +7,7 @@ const service = ({ strapi }: { strapi: Core.Strapi }): CacheService => {
   let instance: RedisCacheProvider | null = null;
 
   return {
-    createCache() {
+    getCacheInstance() {
       if (!instance) {
         instance = new RedisCacheProvider(strapi);
         loggy.info('Creating Redis provider');

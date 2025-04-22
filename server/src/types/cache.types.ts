@@ -12,7 +12,7 @@ export interface CacheProvider {
 }
 
 export interface CacheService {
-  createCache(): CacheProvider;
+  getCacheInstance(): CacheProvider;
 }
 
 export interface CacheInstance {

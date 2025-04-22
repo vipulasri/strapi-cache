@@ -1,106 +1,112 @@
-import React, { useState, useEffect } from 'react';
 import { useIntl } from 'react-intl';
-import { Sparkle } from '@strapi/icons';
-import { Button } from '@strapi/design-system';
+import { Archive } from '@strapi/icons';
+import { Button, Modal } from '@strapi/design-system';
+import { useRBAC } from '@strapi/strapi/admin';
+import { pluginPermissions } from '../../permission';
+import { Typography } from '@strapi/design-system';
+import { useFetchClient } from '@strapi/strapi/admin';
+import { unstable_useContentManagerContext as useContentManagerContext } from '@strapi/strapi/admin';
+import { useNotification } from '@strapi/strapi/admin';
 
-function PurgeCacheButton({ contentType, params, wildcard }: any) {
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [isModalConfirmButtonLoading, setIsModalConfirmButtonLoading] = useState(false);
-  const { formatMessage } = useIntl();
-  //   const toggleNotification = useNotification();
+function PurgeCacheButton() {
+  const { allowedActions } = useRBAC(pluginPermissions);
+  const formatMessage = useIntl().formatMessage;
+  const { post } = useFetchClient();
+  const { toggleNotification } = useNotification();
+  const { contentType } = useContentManagerContext();
+  const pluralName = contentType?.info.pluralName;
 
-  const abortController = new AbortController();
-  const { signal } = abortController;
-
-  useEffect(() => {
-    return () => {
-      abortController.abort();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const toggleConfirmModal = () => setShowConfirmModal((prevState) => !prevState);
-
-  const handleConfirmDelete = async () => {
-    try {
-      // Show the loading state
-      setIsModalConfirmButtonLoading(true);
-
-      //   await request(`/${pluginId}/purge`, {
-      //     method: 'POST',
-      //     signal,
-      //     body: {
-      //       contentType,
-      //       params,
-      //       wildcard,
-      //     },
-      //   });
-
-      //   toggleNotification({
-      //     type: 'success',
-      //     message: {
-      //       id: 'cache.purge.success',
-      //       defaultMessage: 'Cache purged successfully',
-      //     },
-      //   });
-
-      setIsModalConfirmButtonLoading(false);
-
-      toggleConfirmModal();
-    } catch (err) {
-      //   const errorMessage = err?.response?.payload?.error?.message;
-      setIsModalConfirmButtonLoading(false);
-      toggleConfirmModal();
-
-      //   if (errorMessage) {
-      //     toggleNotification({
-      //       type: 'warning',
-      //       message: { id: 'cache.purge.error', defaultMessage: errorMessage },
-      //     });
-      //   } else {
-      //     toggleNotification({
-      //       type: 'warning',
-      //       message: { id: 'notification.error' },
-      //     });
-      //   }
+  const clearCache = () => {
+    if (!pluralName) {
+      toggleNotification({
+        type: 'warning',
+        message: formatMessage({
+          id: 'strapi-cache.cache.purge.no-content-type',
+          defaultMessage: 'No content type found',
+        }),
+      });
+      return;
     }
+
+    post(`/strapi-cache/purge-cache/${pluralName}`, undefined, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(() => {
+        toggleNotification({
+          type: 'success',
+          message:
+            formatMessage({
+              id: 'strapi-cache.cache.purge.success',
+              defaultMessage: 'Cache purged successfully',
+            }) + `: ${pluralName}`,
+        });
+      })
+      .catch(() => {
+        toggleNotification({
+          type: 'danger',
+          message:
+            formatMessage({
+              id: 'strapi-cache.cache.purge.error',
+              defaultMessage: 'Error purging cache',
+            }) + `: ${pluralName}`,
+        });
+      });
   };
 
-  //   if (
-  //     // !strategy?.contentTypes?.find(
-  //     //   (config) => config.contentType === contentType
-  //     // )
-  //   ) {
-  //     return null;
-  //   }
+  if (!allowedActions.canPurgeCache) {
+    return null;
+  }
 
   return (
     <>
-      <Button onClick={toggleConfirmModal} size="S" startIcon={<Sparkle />} variant="danger">
-        {formatMessage({
-          id: 'cache.purge.delete-entry',
-          defaultMessage: 'Purge REST Cache',
-        })}
-      </Button>
-      {/* <ConfirmDialog
-        isConfirmButtonLoading={isModalConfirmButtonLoading}
-        isOpen={showConfirmModal}
-        onConfirm={handleConfirmDelete}
-        onToggleDialog={toggleConfirmModal}
-        title={{
-          id: 'cache.purge.confirm-modal-title',
-          defaultMessage: 'Confirm purging REST Cache?',
-        }}
-        bodyText={{
-          id: 'cache.purge.confirm-modal-body',
-          defaultMessage: 'Are you sure you want to purge REST Cache for this entry?',
-        }}
-        iconRightButton={<Sparkle />}
-        rightButtonText={{
-          id: 'cache.purge.confirm-modal-confirm',
-          defaultMessage: 'Purge REST Cache',
-        }}
-      /> */}
+      <Modal.Root>
+        <Modal.Trigger>
+          <Button startIcon={<Archive />} variant="danger">
+            {formatMessage({
+              id: 'strapi-cache.cache.purge',
+              defaultMessage: 'Purge Cache',
+            })}
+          </Button>
+        </Modal.Trigger>
+        <Modal.Content>
+          <Modal.Header>
+            <Modal.Title>
+              {formatMessage({
+                id: 'strapi-cache.cache.purge',
+                defaultMessage: 'Purge Cache',
+              })}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Typography variant="omega">
+              {formatMessage({
+                id: 'strapi-cache.cache.purge.confirmation',
+                defaultMessage: 'Are you sure you want to purge the cache?',
+              })}
+            </Typography>
+          </Modal.Body>
+          <Modal.Footer>
+            <Modal.Close>
+              <Button variant="tertiary">
+                {formatMessage({
+                  id: 'strapi-cache.cache.cancel',
+                  defaultMessage: 'No, cancel',
+                })}
+              </Button>
+            </Modal.Close>
+            <Modal.Close>
+              <Button onClick={clearCache}>
+                {formatMessage({
+                  id: 'strapi-cache.cache.confirm',
+                  defaultMessage: 'Yes, confirm',
+                })}
+              </Button>
+            </Modal.Close>
+          </Modal.Footer>
+        </Modal.Content>
+      </Modal.Root>
     </>
   );
 }

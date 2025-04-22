@@ -7,7 +7,7 @@ const service = ({ strapi }: { strapi: Core.Strapi }): CacheService => {
   let instance: InMemoryCacheProvider | null = null;
 
   return {
-    createCache() {
+    getCacheInstance() {
       if (!instance) {
         instance = new InMemoryCacheProvider(strapi);
         loggy.info('Creating provider');

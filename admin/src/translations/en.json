@@ -2,5 +2,12 @@
     "strapi-cache.name": "Strapi Cache",
     "strapi-cache.settings": "Cache Settings",
     "strapi-cache.view.settings.title": "Strapi Cache Settings",
-    "strapi-cache.view.settings.subtitle": "Configure what to cache"
+    "strapi-cache.view.settings.subtitle": "Configure what to cache",
+    "strapi-cache.cache.purge": "Purge Cache",
+    "strapi-cache.cache.cancel": "No, cancel",
+    "strapi-cache.cache.confirm": "Yes, purge",
+    "strapi-cache.cache.purge.confirmation": "Are you sure you want to purge the cache?",
+    "strapi-cache.cache.purge.success": "Cache purged successfully",
+    "strapi-cache.cache.purge.error": "Error purging cache",
+    "strapi-cache.cache.purge.no-content-type": "No content type found"
 }

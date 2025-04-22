@@ -1,9 +1,9 @@
-import contentAPIRoutes from './content-api';
+import purgeRoute from './purge';
 
 const routes = {
-  'content-api': {
-    type: 'content-api',
-    routes: contentAPIRoutes,
+  'purge-route': {
+    type: 'admin',
+    routes: purgeRoute,
   },
 };
 
