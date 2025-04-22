@@ -2,6 +2,16 @@ import { Context } from 'koa';
 import { generateCacheKey } from '../utils/key';
 import { CacheService } from 'src/types/cache.types';
 import { loggy } from '../utils/log';
+import Stream, { Readable } from 'stream';
+
+const streamToBuffer = (stream: Stream): Promise<Buffer> => {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    stream.on('data', (chunk) => chunks.push(chunk));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+    stream.on('error', reject);
+  });
+};
 
 const middleware = async (ctx: Context, next: any) => {
   const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
@@ -19,22 +29,24 @@ const middleware = async (ctx: Context, next: any) => {
   if (cacheEntry && !noCache) {
     loggy.info(`HIT with key: ${key}`);
     ctx.status = 200;
-    ctx.body = cacheEntry;
+    ctx.body = cacheEntry.body;
+    ctx.set(cacheEntry.headers);
     ctx.set({ 'Access-Control-Allow-Origin': '*' });
     return;
   }
 
   await next();
 
-  if (
-    ctx.body &&
-    ctx.method === 'GET' &&
-    ctx.status >= 200 &&
-    ctx.status < 300 &&
-    routeIsCachable
-  ) {
+  if (ctx.method === 'GET' && ctx.status >= 200 && ctx.status < 300 && routeIsCachable) {
     loggy.info(`MISS with key: ${key}`);
-    await cacheStore.set(key, ctx.body);
+
+    if (ctx.body instanceof Stream) {
+      const buf = await streamToBuffer(ctx.body);
+      await cacheStore.set(key, { body: buf, headers: ctx.response.headers });
+      ctx.body = buf;
+    } else {
+      await cacheStore.set(key, { body: ctx.body, headers: ctx.response.headers });
+    }
   }
 };
 
