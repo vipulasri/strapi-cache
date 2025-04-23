@@ -1,8 +1,9 @@
 import rawBody from 'raw-body';
 import { generateGraphqlCacheKey } from '../utils/key';
-import { Readable } from 'stream';
+import Stream, { Readable } from 'stream';
 import { loggy } from '../utils/log';
-import { CacheService } from 'src/types/cache.types';
+import { CacheService } from '../../src/types/cache.types';
+import { streamToBuffer } from '../../src/utils/body';
 
 const middleware = async (ctx: any, next: any) => {
   const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
@@ -51,17 +52,23 @@ const middleware = async (ctx: any, next: any) => {
   await next();
 
   if (
-    ctx.body &&
     ctx.method === 'POST' &&
     ctx.status >= 200 &&
     ctx.status < 300 &&
     url.startsWith('/graphql')
   ) {
     loggy.info(`MISS with key: ${key}`);
-    await cacheStore.set(key, {
-      body: ctx.body,
-      headers: ctx.response.headers,
-    });
+
+    if (ctx.body instanceof Stream) {
+      const buf = await streamToBuffer(ctx.body);
+      await cacheStore.set(key, { body: buf, headers: ctx.response.headers });
+      ctx.body = buf;
+    } else {
+      await cacheStore.set(key, {
+        body: ctx.body,
+        headers: ctx.response.headers,
+      });
+    }
   }
 };
 

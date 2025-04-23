@@ -1,17 +1,9 @@
 import { Context } from 'koa';
 import { generateCacheKey } from '../utils/key';
-import { CacheService } from 'src/types/cache.types';
+import { CacheService } from '../../src/types/cache.types';
 import { loggy } from '../utils/log';
-import Stream, { Readable } from 'stream';
-
-const streamToBuffer = (stream: Stream): Promise<Buffer> => {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    stream.on('data', (chunk) => chunks.push(chunk));
-    stream.on('end', () => resolve(Buffer.concat(chunks)));
-    stream.on('error', reject);
-  });
-};
+import Stream from 'stream';
+import { streamToBuffer } from '../../src/utils/body';
 
 const middleware = async (ctx: Context, next: any) => {
   const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
