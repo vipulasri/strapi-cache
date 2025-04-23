@@ -3,7 +3,7 @@ import { generateCacheKey } from '../utils/key';
 import { CacheService } from '../../src/types/cache.types';
 import { loggy } from '../utils/log';
 import Stream from 'stream';
-import { streamToBuffer } from '../../src/utils/body';
+import { decodeBufferToText, decompressBuffer, streamToBuffer } from '../../src/utils/body';
 
 const middleware = async (ctx: Context, next: any) => {
   const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
@@ -23,7 +23,7 @@ const middleware = async (ctx: Context, next: any) => {
     ctx.status = 200;
     ctx.body = cacheEntry.body;
     ctx.set(cacheEntry.headers);
-    ctx.set({ 'Access-Control-Allow-Origin': '*' });
+    ctx.set({ 'Access-Control-Allow-Origin': '*', 'Content-Encoding': 'identity' });
     return;
   }
 
@@ -34,7 +34,11 @@ const middleware = async (ctx: Context, next: any) => {
 
     if (ctx.body instanceof Stream) {
       const buf = await streamToBuffer(ctx.body);
-      await cacheStore.set(key, { body: buf, headers: ctx.response.headers });
+      const contentEncoding = ctx.response.headers['content-encoding'];
+      const decompressed = await decompressBuffer(buf, contentEncoding);
+      const responseText = decodeBufferToText(decompressed);
+
+      await cacheStore.set(key, { body: responseText, headers: ctx.response.headers });
       ctx.body = buf;
     } else {
       await cacheStore.set(key, { body: ctx.body, headers: ctx.response.headers });
