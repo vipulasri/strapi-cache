@@ -23,6 +23,10 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       message: `Cache purged successfully for key: ${key}`,
     };
   },
+  async cacheableRoutes(ctx: Context) {
+    const cacheableRoutes = strapi.plugin('strapi-cache').config('cacheableRoutes');
+    ctx.body = cacheableRoutes;
+  },
 });
 
 export default controller;

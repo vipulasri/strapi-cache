@@ -7,14 +7,34 @@ import { Typography } from '@strapi/design-system';
 import { useFetchClient } from '@strapi/strapi/admin';
 import { unstable_useContentManagerContext as useContentManagerContext } from '@strapi/strapi/admin';
 import { useNotification } from '@strapi/strapi/admin';
+import { useEffect, useState } from 'react';
 
 function PurgeCacheButton() {
   const { allowedActions } = useRBAC(pluginPermissions);
   const formatMessage = useIntl().formatMessage;
-  const { post } = useFetchClient();
+  const { post, get } = useFetchClient();
   const { toggleNotification } = useNotification();
   const { contentType } = useContentManagerContext();
+  const [cacheableRoutes, setCacheableRoutes] = useState<string[]>();
   const pluralName = contentType?.info.pluralName;
+
+  useEffect(() => {
+    if (!allowedActions.canPurgeCache) {
+      return;
+    }
+    const fetchCacheableRoutes = async () => {
+      try {
+        const { data } = await get('/strapi-cache/cacheable-routes');
+        return data;
+      } catch (error) {
+        console.error('Error fetching cacheable routes:', error);
+        return [];
+      }
+    };
+    fetchCacheableRoutes().then((data) => {
+      setCacheableRoutes(data);
+    });
+  }, [allowedActions.canPurgeCache]);
 
   const clearCache = () => {
     if (!pluralName) {
@@ -55,7 +75,20 @@ function PurgeCacheButton() {
       });
   };
 
-  if (!allowedActions.canPurgeCache) {
+  const isCacheableRoute = () => {
+    if (!pluralName || !cacheableRoutes) {
+      return false;
+    }
+
+    return (
+      cacheableRoutes.length === 0 ||
+      cacheableRoutes.some((route) => {
+        return route.includes(pluralName);
+      })
+    );
+  };
+
+  if (!allowedActions.canPurgeCache || !isCacheableRoute()) {
     return null;
   }
 

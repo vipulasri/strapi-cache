@@ -58,12 +58,13 @@ In your Strapi project, navigate to `config/plugins.js` and add the following co
 
 ## 🔍 Routes
 
-The plugin creates two new routes
+The plugin creates three new routes
 
 - `POST /strapi-cache/purge-cache` (purges the whole cache)
 - `POST /strapi-cache/purge-cache/:key` (purges cache entries with have the key in the cache key)
+- `GET /strapi-cache/cacheable-routes` (returns the cacheable routes defined in the config)
 
-Both routes are protected by the policies `admin::isAuthenticatedAdmin` and `plugin::strapi-cache.purge-cache`. The second policy can be managed in the plugin's permissions section under the settings.
+All of these routes are protected by the policies `admin::isAuthenticatedAdmin` and `plugin::strapi-cache.purge-cache`. The `plugin::strapi-cache.purge-cache` policy can be managed in the plugin's permissions section under the settings.
 
 ## 🗂️ How It Works
 
