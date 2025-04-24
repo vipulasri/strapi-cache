@@ -1,6 +1,7 @@
 import { PLUGIN_ID } from './pluginId';
 import { Initializer } from './components/Initializer';
 import PurgeCacheButton from './components/PurgeCacheButton';
+import PurgeEntityButton from './components/PurgeEntityButton';
 
 export default {
   register(app: any) {
@@ -14,6 +15,11 @@ export default {
     app.getPlugin('content-manager').injectComponent('listView', 'actions', {
       name: PurgeCacheButton,
       Component: PurgeCacheButton,
+    });
+
+    app.getPlugin('content-manager').injectComponent('editView', 'right-links', {
+      name: PurgeEntityButton,
+      Component: PurgeEntityButton,
     });
   },
 

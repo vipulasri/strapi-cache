@@ -1,3 +1,5 @@
+//TODO: refactor and rid of duplicated code (PurgeEntityButton and PurgeCacheButton)
+
 import { useIntl } from 'react-intl';
 import { Archive } from '@strapi/icons';
 import { Button, Modal } from '@strapi/design-system';
@@ -9,12 +11,12 @@ import { unstable_useContentManagerContext as useContentManagerContext } from '@
 import { useNotification } from '@strapi/strapi/admin';
 import { useEffect, useState } from 'react';
 
-function PurgeCacheButton() {
+function PurgeEntityButton() {
   const { allowedActions } = useRBAC(pluginPermissions);
   const formatMessage = useIntl().formatMessage;
   const { post, get } = useFetchClient();
   const { toggleNotification } = useNotification();
-  const { contentType } = useContentManagerContext();
+  const { contentType, id } = useContentManagerContext();
   const [cacheableRoutes, setCacheableRoutes] = useState<string[]>();
   const pluralName = contentType?.info.pluralName;
 
@@ -48,7 +50,7 @@ function PurgeCacheButton() {
       return;
     }
 
-    post(`/strapi-cache/purge-cache/${pluralName}`, undefined, {
+    post(`/strapi-cache/purge-cache/${id}`, undefined, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -96,10 +98,10 @@ function PurgeCacheButton() {
     <>
       <Modal.Root>
         <Modal.Trigger>
-          <Button startIcon={<Archive />} variant="danger">
+          <Button width={'100%'} startIcon={<Archive />} variant="danger">
             {formatMessage({
-              id: 'strapi-cache.cache.purge',
-              defaultMessage: 'Purge Cache',
+              id: 'strapi-cache.cache.purge.entity',
+              defaultMessage: 'Purge Entity Cache',
             })}
           </Button>
         </Modal.Trigger>
@@ -107,8 +109,8 @@ function PurgeCacheButton() {
           <Modal.Header>
             <Modal.Title>
               {formatMessage({
-                id: 'strapi-cache.cache.purge',
-                defaultMessage: 'Purge Cache',
+                id: 'strapi-cache.cache.purge.entity',
+                defaultMessage: 'Purge Entity Cache',
               })}
             </Modal.Title>
           </Modal.Header>
@@ -119,9 +121,7 @@ function PurgeCacheButton() {
                   id: 'strapi-cache.cache.purge.confirmation',
                   defaultMessage: 'Are you sure you want to purge the cache?',
                 },
-                {
-                  key: `"${pluralName}"`,
-                }
+                { key: `"${id}"` }
               )}
             </Typography>
           </Modal.Body>
@@ -149,4 +149,4 @@ function PurgeCacheButton() {
   );
 }
 
-export default PurgeCacheButton;
+export default PurgeEntityButton;
