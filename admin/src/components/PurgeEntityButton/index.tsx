@@ -16,9 +16,9 @@ function PurgeEntityButton() {
   const formatMessage = useIntl().formatMessage;
   const { post, get } = useFetchClient();
   const { toggleNotification } = useNotification();
-  const { contentType, id } = useContentManagerContext();
+  const { id, isSingleType, contentType } = useContentManagerContext();
   const [cacheableRoutes, setCacheableRoutes] = useState<string[]>();
-  const pluralName = contentType?.info.pluralName;
+  const keyToUse = isSingleType ? contentType?.info.singularName : id;
 
   useEffect(() => {
     if (!allowedActions.canPurgeCache) {
@@ -39,7 +39,7 @@ function PurgeEntityButton() {
   }, [allowedActions.canPurgeCache]);
 
   const clearCache = () => {
-    if (!pluralName) {
+    if (!keyToUse) {
       toggleNotification({
         type: 'warning',
         message: formatMessage({
@@ -50,7 +50,7 @@ function PurgeEntityButton() {
       return;
     }
 
-    post(`/strapi-cache/purge-cache/${id}`, undefined, {
+    post(`/strapi-cache/purge-cache/${keyToUse}`, undefined, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -62,7 +62,7 @@ function PurgeEntityButton() {
             formatMessage({
               id: 'strapi-cache.cache.purge.success',
               defaultMessage: 'Cache purged successfully',
-            }) + `: ${pluralName}`,
+            }) + `: ${keyToUse}`,
         });
       })
       .catch(() => {
@@ -72,20 +72,20 @@ function PurgeEntityButton() {
             formatMessage({
               id: 'strapi-cache.cache.purge.error',
               defaultMessage: 'Error purging cache',
-            }) + `: ${pluralName}`,
+            }) + `: ${keyToUse}`,
         });
       });
   };
 
   const isCacheableRoute = () => {
-    if (!pluralName || !cacheableRoutes) {
+    if (!keyToUse || !cacheableRoutes) {
       return false;
     }
 
     return (
       cacheableRoutes.length === 0 ||
       cacheableRoutes.some((route) => {
-        return route.includes(pluralName);
+        return route.includes(keyToUse);
       })
     );
   };
@@ -121,7 +121,7 @@ function PurgeEntityButton() {
                   id: 'strapi-cache.cache.purge.confirmation',
                   defaultMessage: 'Are you sure you want to purge the cache?',
                 },
-                { key: `"${id}"` }
+                { key: `"${keyToUse}"` }
               )}
             </Typography>
           </Modal.Body>
