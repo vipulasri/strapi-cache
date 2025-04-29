@@ -12,9 +12,10 @@ export type PurgeProps = {
   buttonText: string;
   buttonWidth?: string;
   keyToUse?: string;
+  contentTypeName?: string;
 };
 
-function PurgeModal({ buttonText, keyToUse, buttonWidth }: PurgeProps) {
+function PurgeModal({ buttonText, keyToUse, buttonWidth, contentTypeName }: PurgeProps) {
   const { allowedActions } = useRBAC(pluginPermissions);
   const formatMessage = useIntl().formatMessage;
   const { post, get } = useFetchClient();
@@ -47,7 +48,7 @@ function PurgeModal({ buttonText, keyToUse, buttonWidth }: PurgeProps) {
     return (
       cacheableRoutes.length === 0 ||
       cacheableRoutes.some((route) => {
-        return route.includes(keyToUse);
+        return route.includes(keyToUse) || (contentTypeName && route.includes(contentTypeName));
       })
     );
   };

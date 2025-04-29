@@ -6,6 +6,9 @@ function PurgeEntityButton() {
   const { formatMessage } = useIntl();
   const { id, isSingleType, contentType } = useContentManagerContext();
   const keyToUse = isSingleType ? contentType?.info.singularName : id;
+  const contentTypeName = isSingleType
+    ? contentType?.info.singularName
+    : contentType?.info.pluralName;
 
   return (
     <PurgeModal
@@ -15,6 +18,7 @@ function PurgeEntityButton() {
         defaultMessage: 'Purge Entity Cache',
       })}
       keyToUse={keyToUse}
+      contentTypeName={contentTypeName}
     ></PurgeModal>
   );
 }
