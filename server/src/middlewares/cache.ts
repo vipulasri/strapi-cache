@@ -32,6 +32,13 @@ const middleware = async (ctx: Context, next: any) => {
   if (ctx.method === 'GET' && ctx.status >= 200 && ctx.status < 300 && routeIsCachable) {
     loggy.info(`MISS with key: ${key}`);
 
+    const headers = ctx.request.headers;
+    const authorizationHeader = headers['authorization'];
+    if (authorizationHeader) {
+      loggy.info(`Authorized request not caching: ${key}`);
+      return;
+    }
+
     if (ctx.body instanceof Stream) {
       const buf = await streamToBuffer(ctx.body);
       const contentEncoding = ctx.response.headers['content-encoding'];

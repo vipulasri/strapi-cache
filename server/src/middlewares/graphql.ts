@@ -59,6 +59,12 @@ const middleware = async (ctx: any, next: any) => {
     url.startsWith('/graphql')
   ) {
     loggy.info(`MISS with key: ${key}`);
+    const headers = ctx.request.headers;
+    const authorizationHeader = headers['authorization'];
+    if (authorizationHeader) {
+      loggy.info(`Authorized request not caching: ${key}`);
+      return;
+    }
 
     if (ctx.body instanceof Stream) {
       const buf = await streamToBuffer(ctx.body);
