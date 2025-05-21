@@ -8,6 +8,8 @@ export default {
     cacheableRoutes: [],
     provider: 'memory',
     redisConfig: env('REDIS_URL'),
+    cacheHeaders: true,
+    cacheAuthorizedRequests: false,
   }),
   validator: (config) => {
     if (typeof config.debug !== 'boolean') {
@@ -37,8 +39,18 @@ export default {
     if (config.provider !== 'memory' && config.provider !== 'redis') {
       throw new Error(`Invalid config: provider must be 'memory' or 'redis'`);
     }
-    if (config.provider === 'redis' && !config.redisConfig && (typeof config.redisConfig !== 'string' || typeof config.redisConfig !== 'object')) {
+    if (
+      config.provider === 'redis' &&
+      !config.redisConfig &&
+      (typeof config.redisConfig !== 'string' || typeof config.redisConfig !== 'object')
+    ) {
       throw new Error(`Invalid config: redisConfig must be set when using redis provider`);
+    }
+    if (typeof config.cacheHeaders !== 'boolean') {
+      throw new Error(`Invalid config: cacheHeaders must be a boolean`);
+    }
+    if (typeof config.cacheAuthorizedRequests !== 'boolean') {
+      throw new Error(`Invalid config: cacheAuthorizedRequests must be a boolean`);
     }
   },
 };

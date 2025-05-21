@@ -7,6 +7,10 @@ import { decodeBufferToText, decompressBuffer, streamToBuffer } from '../../src/
 
 const middleware = async (ctx: any, next: any) => {
   const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
+  const cacheHeaders = strapi.plugin('strapi-cache').config('cacheHeaders') as boolean;
+  const cacheAuthorizedRequests = strapi
+    .plugin('strapi-cache')
+    .config('cacheAuthorizedRequests') as boolean;
   const cacheStore = cacheService.getCacheInstance();
   const { url } = ctx.request;
 
@@ -28,8 +32,6 @@ const middleware = async (ctx: any, next: any) => {
   ctx.req = clonedReq;
   ctx.request.req = clonedReq;
 
-  const key = generateGraphqlCacheKey(body);
-
   const isIntrospectionQuery = body.includes('IntrospectionQuery');
   if (isIntrospectionQuery) {
     loggy.info('Skipping cache for introspection query');
@@ -37,16 +39,23 @@ const middleware = async (ctx: any, next: any) => {
     return;
   }
 
+  const key = generateGraphqlCacheKey(body);
   const cacheEntry = await cacheStore.get(key);
   const cacheControlHeader = ctx.request.headers['cache-control'];
   const noCache = cacheControlHeader && cacheControlHeader.includes('no-cache');
+  const authorizationHeader = ctx.request.headers['authorization'];
+
+  if (authorizationHeader && !cacheAuthorizedRequests) {
+    loggy.info(`Authorized request bypassing cache: ${key}`);
+    await next();
+    return;
+  }
 
   if (cacheEntry && !noCache) {
     loggy.info(`HIT with key: ${key}`);
     ctx.status = 200;
     ctx.body = cacheEntry.body;
     ctx.set(cacheEntry.headers);
-    ctx.set({ 'Content-Encoding': 'identity' });
     return;
   }
 
@@ -61,7 +70,7 @@ const middleware = async (ctx: any, next: any) => {
     loggy.info(`MISS with key: ${key}`);
     const headers = ctx.request.headers;
     const authorizationHeader = headers['authorization'];
-    if (authorizationHeader) {
+    if (authorizationHeader && !cacheAuthorizedRequests) {
       loggy.info(`Authorized request not caching: ${key}`);
       return;
     }
@@ -72,12 +81,14 @@ const middleware = async (ctx: any, next: any) => {
       const decompressed = await decompressBuffer(buf, contentEncoding);
       const responseText = decodeBufferToText(decompressed);
 
-      await cacheStore.set(key, { body: responseText, headers: ctx.response.headers });
+      const headersToStore = cacheHeaders ? ctx.response.headers : null;
+      await cacheStore.set(key, { body: responseText, headers: headersToStore });
       ctx.body = buf;
     } else {
+      const headersToStore = cacheHeaders ? ctx.response.headers : null;
       await cacheStore.set(key, {
         body: ctx.body,
-        headers: ctx.response.headers,
+        headers: headersToStore,
       });
     }
   }
