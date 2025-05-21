@@ -15,14 +15,16 @@ export class RedisCacheProvider implements CacheProvider {
       loggy.error('Redis provider already initialized');
       return;
     }
+    try {
+      const redisUrl =
+        this.strapi.plugin('strapi-cache').config('redisConfig') || 'redis://localhost:6379';
+      this.client = new Redis(redisUrl);
+      this.initialized = true;
 
-    const redisUrl =
-      this.strapi.plugin('strapi-cache').config('redisUrl') || 'redis://localhost:6379';
-
-    this.client = new Redis(redisUrl);
-    this.initialized = true;
-
-    loggy.info('Redis provider initialized');
+      loggy.info('Redis provider initialized');
+    } catch (error) {
+      loggy.error(error);
+    }
   }
 
   get ready(): boolean {
