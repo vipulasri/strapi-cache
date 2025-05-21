@@ -51,7 +51,7 @@ In your Strapi project, navigate to `config/plugins.js` and add the following co
     allowStale: false, // Allow stale cache items (only for memory cache)
     cacheableRoutes: ['/api/products', '/api/categories'], // Caches routes which start with these paths (if empty array, all '/api' routes are cached)
     provider: 'memory', // Cache provider ('memory' or 'redis')
-    redisUrl: env('REDIS_URL', 'redis://localhost:6379'), // Redis URL (if using Redis)
+    RedisConfig: env('REDIS_URL', 'redis://localhost:6379'), // Redis config takes either a string or an object see https://ioredis.readthedocs.io/en/stable/README for references to what object is available, the object or string is passed directly to ioredis client (if using Redis)
   },
 },
 ```

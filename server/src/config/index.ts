@@ -7,7 +7,7 @@ export default {
     allowStale: false,
     cacheableRoutes: [],
     provider: 'memory',
-    redisUrl: env('REDIS_URL'),
+    redisConfig: env('REDIS_URL'),
   }),
   validator: (config) => {
     if (typeof config.debug !== 'boolean') {
@@ -37,8 +37,8 @@ export default {
     if (config.provider !== 'memory' && config.provider !== 'redis') {
       throw new Error(`Invalid config: provider must be 'memory' or 'redis'`);
     }
-    if (config.provider === 'redis' && !config.redisUrl && typeof config.redisUrl !== 'string') {
-      throw new Error(`Invalid config: redisUrl must be set when using redis provider`);
+    if (config.provider === 'redis' && !config.redisConfig && (typeof config.redisConfig !== 'string' || typeof config.redisConfig !== 'object')) {
+      throw new Error(`Invalid config: redisConfig must be set when using redis provider`);
     }
   },
 };
