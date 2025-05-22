@@ -33,7 +33,9 @@ const middleware = async (ctx: Context, next: any) => {
     loggy.info(`HIT with key: ${key}`);
     ctx.status = 200;
     ctx.body = cacheEntry.body;
-    ctx.set(cacheEntry.headers);
+    if (cacheHeaders) {
+      ctx.set(cacheEntry.headers);
+    }
     return;
   }
 
