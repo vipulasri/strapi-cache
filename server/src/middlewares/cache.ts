@@ -33,9 +33,9 @@ const middleware = async (ctx: Context, next: any) => {
     loggy.info(`HIT with key: ${key}`);
     ctx.status = 200;
     ctx.body = cacheEntry.body;
-    // if (cacheHeaders) {
-    ctx.set(cacheEntry.headers);
-    // }
+    if (cacheHeaders) {
+      ctx.set(cacheEntry.headers);
+    }
     return;
   }
 
@@ -50,12 +50,12 @@ const middleware = async (ctx: Context, next: any) => {
       const decompressed = await decompressBuffer(buf, contentEncoding);
       const responseText = decodeBufferToText(decompressed);
 
-      // const headersToStore = cacheHeaders ? ctx.response.headers : null;
-      await cacheStore.set(key, { body: responseText, headers: ctx.response.headers });
+      const headersToStore = cacheHeaders ? ctx.response.headers : null;
+      await cacheStore.set(key, { body: responseText, headers: headersToStore });
       ctx.body = buf;
     } else {
-      // const headersToStore = cacheHeaders ? ctx.response.headers : null;
-      await cacheStore.set(key, { body: ctx.body, headers: ctx.response.headers });
+      const headersToStore = cacheHeaders ? ctx.response.headers : null;
+      await cacheStore.set(key, { body: ctx.body, headers: headersToStore });
     }
   }
 };
