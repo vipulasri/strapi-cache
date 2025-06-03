@@ -54,6 +54,7 @@ In your Strapi project, navigate to `config/plugins.js` and add the following co
     redisConfig: env('REDIS_URL', 'redis://localhost:6379'), // Redis config takes either a string or an object see https://ioredis.readthedocs.io/en/stable/README for references to what object is available, the object or string is passed directly to ioredis client (if using Redis)
     cacheHeaders: true, // Plugin also stores response headers in the cache (set to false if you don't want to cache headers)
     cacheAuthorizedRequests: false, // Cache requests with authorization headers (set to true if you want to cache authorized requests)
+    cacheGetTimeoutInMs: 10000, // Timeout for getting cache items in milliseconds (default is 10 seconds)
   },
 },
 ```

@@ -10,6 +10,7 @@ export default {
     redisConfig: env('REDIS_URL'),
     cacheHeaders: true,
     cacheAuthorizedRequests: false,
+    cacheGetTimeoutInMs: 10000,
   }),
   validator: (config) => {
     if (typeof config.debug !== 'boolean') {
@@ -51,6 +52,10 @@ export default {
     }
     if (typeof config.cacheAuthorizedRequests !== 'boolean') {
       throw new Error(`Invalid config: cacheAuthorizedRequests must be a boolean`);
+    }
+
+    if (typeof config.cacheGetTimeoutInMs !== 'number') {
+      throw new Error(`Invalid config: cacheGetTimeoutInMs must be a number`);
     }
   },
 };
