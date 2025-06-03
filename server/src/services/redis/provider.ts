@@ -7,6 +7,7 @@ import { loggy } from '../../utils/log';
 export class RedisCacheProvider implements CacheProvider {
   private initialized = false;
   private client!: Redis;
+  private cacheGetTimeoutInMs: number;
 
   constructor(private strapi: Core.Strapi) {}
 
@@ -18,6 +19,9 @@ export class RedisCacheProvider implements CacheProvider {
     try {
       const redisUrl =
         this.strapi.plugin('strapi-cache').config('redisConfig') || 'redis://localhost:6379';
+      this.cacheGetTimeoutInMs = Number(
+        this.strapi.plugin('strapi-cache').config('cacheGetTimeoutInMs')
+      );
       this.client = new Redis(redisUrl);
       this.initialized = true;
 
@@ -39,8 +43,7 @@ export class RedisCacheProvider implements CacheProvider {
   async get(key: string): Promise<any | null> {
     if (!this.ready) return null;
 
-    const timeout = 1000;
-    return withTimeout(() => this.client.get(key), timeout)
+    return withTimeout(() => this.client.get(key), this.cacheGetTimeoutInMs)
       .then((data) => (data ? JSON.parse(data) : null))
       .catch((error) => {
         loggy.error(`Redis get error: ${error?.message || error}`);
