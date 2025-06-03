@@ -10,7 +10,7 @@ export default {
     redisConfig: env('REDIS_URL'),
     cacheHeaders: true,
     cacheAuthorizedRequests: false,
-    cacheGetTimeoutInMs: 10000,
+    cacheGetTimeoutInMs: 1000,
   }),
   validator: (config) => {
     if (typeof config.debug !== 'boolean') {
