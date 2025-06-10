@@ -1,15 +1,15 @@
 import type { Core } from '@strapi/strapi';
-import Redis from 'ioredis';
+import { Redis, Cluster, ClusterNode, ClusterOptions } from 'ioredis';
 import { withTimeout } from '../../utils/withTimeout';
 import { CacheProvider } from '../../types/cache.types';
 import { loggy } from '../../utils/log';
 
 export class RedisCacheProvider implements CacheProvider {
   private initialized = false;
-  private client!: Redis;
+  private client!: Redis | Cluster;
   private cacheGetTimeoutInMs: number;
 
-  constructor(private strapi: Core.Strapi) {}
+  constructor(private strapi: Core.Strapi) { }
 
   init(): void {
     if (this.initialized) {
@@ -17,12 +17,21 @@ export class RedisCacheProvider implements CacheProvider {
       return;
     }
     try {
-      const redisUrl =
+      const redisConfig =
         this.strapi.plugin('strapi-cache').config('redisConfig') || 'redis://localhost:6379';
+      const redisClusterNodes: ClusterNode[] =
+        this.strapi.plugin('strapi-cache').config('redisClusterNodes');
       this.cacheGetTimeoutInMs = Number(
         this.strapi.plugin('strapi-cache').config('cacheGetTimeoutInMs')
       );
-      this.client = new Redis(redisUrl);
+      if (redisClusterNodes.length) {
+        const redisClusterOptions: ClusterOptions =
+          this.strapi.plugin('strapi-cache').config('redisClusterOptions');
+        redisClusterOptions.redisOptions = redisConfig;
+        this.client = new Redis.Cluster(redisClusterNodes, redisClusterOptions);
+      } else {
+        this.client = new Redis(redisConfig);
+      }
       this.initialized = true;
 
       loggy.info('Redis provider initialized');
