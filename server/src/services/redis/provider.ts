@@ -27,7 +27,9 @@ export class RedisCacheProvider implements CacheProvider {
       if (redisClusterNodes.length) {
         const redisClusterOptions: ClusterOptions =
           this.strapi.plugin('strapi-cache').config('redisClusterOptions');
-        redisClusterOptions.redisOptions = redisConfig;
+        if (!redisClusterOptions['redisOptions']) {
+          redisClusterOptions.redisOptions = redisConfig;
+        }
         this.client = new Redis.Cluster(redisClusterNodes, redisClusterOptions);
       } else {
         this.client = new Redis(redisConfig);
