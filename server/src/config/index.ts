@@ -62,7 +62,6 @@ export default {
     if (typeof config.cacheAuthorizedRequests !== 'boolean') {
       throw new Error(`Invalid config: cacheAuthorizedRequests must be a boolean`);
     }
-
     if (typeof config.cacheGetTimeoutInMs !== 'number') {
       throw new Error(`Invalid config: cacheGetTimeoutInMs must be a number`);
     }
