@@ -57,8 +57,8 @@ export default ({ env }) => ({
 //       }, // Redis config takes either a string or an object see https://ioredis.readthedocs.io/en/stable/README for references to what object is available, the object or string is passed directly to ioredis client (if using Redis)
 //       redisClusterNodes: [
 //         {
-//           'host': 'localhost',
-//           'port': 6379
+//           host: 'localhost',
+//           port: 6379
 //         }
 //       ], // If provided any cluster node (this list is not empty), initialize ioredis redis cluster client. Each object must have keys 'host' and 'port'. See https://ioredis.readthedocs.io/en/stable/README for references
 //       redisClusterOptions: {
