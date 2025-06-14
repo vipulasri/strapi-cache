@@ -8,6 +8,8 @@ export default {
     cacheableRoutes: [],
     provider: 'memory',
     redisConfig: env('REDIS_URL'),
+    redisClusterNodes: [],
+    redisClusterOptions: {},
     cacheHeaders: true,
     cacheAuthorizedRequests: false,
     cacheGetTimeoutInMs: 1000,
@@ -40,12 +42,19 @@ export default {
     if (config.provider !== 'memory' && config.provider !== 'redis') {
       throw new Error(`Invalid config: provider must be 'memory' or 'redis'`);
     }
-    if (
-      config.provider === 'redis' &&
-      !config.redisConfig &&
-      (typeof config.redisConfig !== 'string' || typeof config.redisConfig !== 'object')
-    ) {
-      throw new Error(`Invalid config: redisConfig must be set when using redis provider`);
+    if (config.provider === 'redis') {
+      if (!config.redisConfig &&
+      (typeof config.redisConfig !== 'string' || typeof config.redisConfig !== 'object')) {
+        throw new Error(`Invalid config: redisConfig must be set when using redis provider`);
+      }
+      if (!Array.isArray(config.redisClusterNodes) ||
+        config.redisClusterNodes.some((item) =>
+          !('host' in item && 'port' in item))) {
+        throw new Error(`Invalid config: redisClusterNodes must be as a list of objects with keys 'host' and 'port'`);
+      }
+      if (typeof config.redisClusterOptions !== 'object') {
+        throw new Error(`Invalid config: redisClusterOptions must be an object`);
+      }
     }
     if (typeof config.cacheHeaders !== 'boolean') {
       throw new Error(`Invalid config: cacheHeaders must be a boolean`);
@@ -53,7 +62,6 @@ export default {
     if (typeof config.cacheAuthorizedRequests !== 'boolean') {
       throw new Error(`Invalid config: cacheAuthorizedRequests must be a boolean`);
     }
-
     if (typeof config.cacheGetTimeoutInMs !== 'number') {
       throw new Error(`Invalid config: cacheGetTimeoutInMs must be a number`);
     }
