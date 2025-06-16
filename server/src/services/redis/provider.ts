@@ -66,11 +66,12 @@ export class RedisCacheProvider implements CacheProvider {
     if (!this.ready) return null;
 
     try {
+      // plugin ttl is ms, ioredis ttl is s, so we convert here
       const ttlInMs = Number(this.strapi.plugin('strapi-cache').config('ttl'));
       const ttlInS = Number((ttlInMs/1000).toFixed());
       const serialized = JSON.stringify(val);
       if (ttlInS > 0) {
-        await this.client.set(key, serialized, 'EX', ttlInS); // input ttl is ms, redis ttl is ms
+        await this.client.set(key, serialized, 'EX', ttlInS);
       } else {
         await this.client.set(key, serialized);
       }
