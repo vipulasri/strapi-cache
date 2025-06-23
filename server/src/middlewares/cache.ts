@@ -9,6 +9,7 @@ const middleware = async (ctx: Context, next: any) => {
   const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
   const cacheableRoutes = strapi.plugin('strapi-cache').config('cacheableRoutes') as string[];
   const cacheHeaders = strapi.plugin('strapi-cache').config('cacheHeaders') as boolean;
+  const cacheableHeaders = strapi.plugin('strapi-cache').config('cacheableHeaders') as string[];
   const cacheAuthorizedRequests = strapi
     .plugin('strapi-cache')
     .config('cacheAuthorizedRequests') as boolean;
@@ -34,7 +35,14 @@ const middleware = async (ctx: Context, next: any) => {
     ctx.status = 200;
     ctx.body = cacheEntry.body;
     if (cacheHeaders) {
-      ctx.set(cacheEntry.headers);
+      const headersToSet = cacheableHeaders.length
+        ? Object.fromEntries(
+            Object.entries(cacheEntry.headers).filter(([key]) =>
+              cacheableHeaders.includes(key.toLowerCase())
+            )
+          )
+        : cacheEntry.headers;
+      ctx.set(headersToSet);
     }
     return;
   }
@@ -50,11 +58,28 @@ const middleware = async (ctx: Context, next: any) => {
       const decompressed = await decompressBuffer(buf, contentEncoding);
       const responseText = decodeBufferToText(decompressed);
 
-      const headersToStore = cacheHeaders ? ctx.response.headers : null;
+      const headersToStore = cacheHeaders
+        ? cacheableHeaders.length
+          ? Object.fromEntries(
+              Object.entries(ctx.response.headers).filter(([key]) =>
+                cacheableHeaders.includes(key.toLowerCase())
+              )
+            )
+          : ctx.response.headers
+        : null;
       await cacheStore.set(key, { body: responseText, headers: headersToStore });
       ctx.body = buf;
     } else {
-      const headersToStore = cacheHeaders ? ctx.response.headers : null;
+      const headersToStore = cacheHeaders
+        ? cacheableHeaders.length
+          ? Object.fromEntries(
+              Object.entries(ctx.response.headers).filter(([key]) =>
+                cacheableHeaders.includes(key.toLowerCase())
+              )
+            )
+          : ctx.response.headers
+        : null;
+
       await cacheStore.set(key, { body: ctx.body, headers: headersToStore });
     }
   }

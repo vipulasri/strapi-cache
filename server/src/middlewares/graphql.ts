@@ -8,6 +8,7 @@ import { decodeBufferToText, decompressBuffer, streamToBuffer } from '../../src/
 const middleware = async (ctx: any, next: any) => {
   const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
   const cacheHeaders = strapi.plugin('strapi-cache').config('cacheHeaders') as boolean;
+  const cacheableHeaders = strapi.plugin('strapi-cache').config('cacheableHeaders') as string[];
   const cacheAuthorizedRequests = strapi
     .plugin('strapi-cache')
     .config('cacheAuthorizedRequests') as boolean;
