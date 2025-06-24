@@ -11,6 +11,7 @@ export default {
     redisClusterNodes: [],
     redisClusterOptions: {},
     cacheHeaders: true,
+    cacheableHeaders: [],
     cacheAuthorizedRequests: false,
     cacheGetTimeoutInMs: 1000,
   }),
@@ -43,14 +44,19 @@ export default {
       throw new Error(`Invalid config: provider must be 'memory' or 'redis'`);
     }
     if (config.provider === 'redis') {
-      if (!config.redisConfig &&
-      (typeof config.redisConfig !== 'string' || typeof config.redisConfig !== 'object')) {
+      if (
+        !config.redisConfig &&
+        (typeof config.redisConfig !== 'string' || typeof config.redisConfig !== 'object')
+      ) {
         throw new Error(`Invalid config: redisConfig must be set when using redis provider`);
       }
-      if (!Array.isArray(config.redisClusterNodes) ||
-        config.redisClusterNodes.some((item) =>
-          !('host' in item && 'port' in item))) {
-        throw new Error(`Invalid config: redisClusterNodes must be as a list of objects with keys 'host' and 'port'`);
+      if (
+        !Array.isArray(config.redisClusterNodes) ||
+        config.redisClusterNodes.some((item) => !('host' in item && 'port' in item))
+      ) {
+        throw new Error(
+          `Invalid config: redisClusterNodes must be as a list of objects with keys 'host' and 'port'`
+        );
       }
       if (typeof config.redisClusterOptions !== 'object') {
         throw new Error(`Invalid config: redisClusterOptions must be an object`);
@@ -58,6 +64,12 @@ export default {
     }
     if (typeof config.cacheHeaders !== 'boolean') {
       throw new Error(`Invalid config: cacheHeaders must be a boolean`);
+    }
+    if (
+      !Array.isArray(config.cacheableHeaders) ||
+      config.cacheableHeaders.some((item) => typeof item !== 'string')
+    ) {
+      throw new Error(`Invalid config: cacheableHeaders must be an string array`);
     }
     if (typeof config.cacheAuthorizedRequests !== 'boolean') {
       throw new Error(`Invalid config: cacheAuthorizedRequests must be a boolean`);
