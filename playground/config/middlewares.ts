@@ -2,13 +2,7 @@ export default [
   'strapi::logger',
   'strapi::errors',
   'strapi::security',
-  {
-    name: 'strapi::compression',
-    config: {
-      // Brotli compression to reduce file size
-      br: true,
-    },
-  },
+  'strapi::compression',
   'strapi::cors',
   'strapi::poweredBy',
   'strapi::query',
