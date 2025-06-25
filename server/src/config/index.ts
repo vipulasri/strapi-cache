@@ -15,6 +15,7 @@ export default {
     cacheHeadersAllowList: [],
     cacheAuthorizedRequests: false,
     cacheGetTimeoutInMs: 1000,
+    autoPurgeCache: true,
   }),
   validator: (config) => {
     if (typeof config.debug !== 'boolean') {
@@ -83,6 +84,9 @@ export default {
     }
     if (typeof config.cacheGetTimeoutInMs !== 'number') {
       throw new Error(`Invalid config: cacheGetTimeoutInMs must be a number`);
+    }
+    if (typeof config.autoPurgeCache !== 'boolean') {
+      throw new Error(`Invalid config: autoPurgeCache must be a boolean`);
     }
   },
 };

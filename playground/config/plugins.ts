@@ -17,6 +17,7 @@ export default ({ env }) => ({
       cacheHeadersDenyList: ['access-control-allow-origin', 'content-encoding'], // Headers to exclude from the cache (must be lowercase, if empty array, no headers are excluded, cacheHeaders must be true)
       cacheHeadersAllowList: ['content-type', 'content-security-policy'], // Headers to include in the cache (must be lowercase, if empty array, all headers are cached, cacheHeaders must be true),
       cacheAuthorizedRequests: false,
+      autoPurgeCache: true, // Automatically purge cache on content CRUD operations
     },
   },
 });
@@ -41,6 +42,7 @@ export default ({ env }) => ({
 //       cacheHeadersDenyList: ['access-control-allow-origin', 'content-encoding'], // Headers to exclude from the cache (must be lowercase, if empty array, no headers are excluded, cacheHeaders must be true)
 //       cacheHeadersAllowList: ['content-type', 'content-security-policy'], // Headers to include in the cache (must be lowercase, if empty array, all headers are cached, cacheHeaders must be true),
 //       cacheAuthorizedRequests: false,
+//       autoPurgeCache: true, // Automatically purge cache on content CRUD operations
 //     },
 //   },
 // });
@@ -74,6 +76,7 @@ export default ({ env }) => ({
 //       cacheHeadersDenyList: ['access-control-allow-origin', 'content-encoding'], // Headers to exclude from the cache (must be lowercase, if empty array, no headers are excluded, cacheHeaders must be true)
 //       cacheHeadersAllowList: ['content-type', 'content-security-policy'], // Headers to include in the cache (must be lowercase, if empty array, all headers are cached, cacheHeaders must be true),
 //       cacheAuthorizedRequests: false,
+//       autoPurgeCache: true, // Automatically purge cache on content CRUD operations
 //     },
 //   },
 // });

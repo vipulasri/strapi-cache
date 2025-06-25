@@ -59,6 +59,7 @@ In your Strapi project, navigate to `config/plugins.js` and add the following co
     cacheHeadersAllowList: ['content-type', 'content-security-policy'], // Headers to include in the cache (must be lowercase, if empty array, all headers are cached, cacheHeaders must be true)
     cacheAuthorizedRequests: false, // Cache requests with authorization headers (set to true if you want to cache authorized requests)
     cacheGetTimeoutInMs: 1000, // Timeout for getting cached data in milliseconds (default is 1 seconds)
+    autoPurgeCache: true, // Automatically purge cache on content CRUD operations
   },
 },
 ```
