@@ -2,16 +2,14 @@ import rawBody from 'raw-body';
 import { generateGraphqlCacheKey } from '../utils/key';
 import Stream, { Readable } from 'stream';
 import { loggy } from '../utils/log';
-import { CacheService } from '../../src/types/cache.types';
-import { decodeBufferToText, decompressBuffer, streamToBuffer } from '../../src/utils/body';
+import { CacheService } from '../types/cache.types';
+import { decodeBufferToText, decompressBuffer, streamToBuffer } from '../utils/body';
+import { getCacheHeaderConfig, getHeadersToStore } from '../utils/header';
 
 const middleware = async (ctx: any, next: any) => {
   const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
-  const cacheHeaders = strapi.plugin('strapi-cache').config('cacheHeaders') as boolean;
-  const cacheableHeaders = strapi.plugin('strapi-cache').config('cacheableHeaders') as string[];
-  const cacheAuthorizedRequests = strapi
-    .plugin('strapi-cache')
-    .config('cacheAuthorizedRequests') as boolean;
+  const { cacheHeaders, cacheHeadersDenyList, cacheHeadersAllowList, cacheAuthorizedRequests } =
+    getCacheHeaderConfig();
   const cacheStore = cacheService.getCacheInstance();
   const { url } = ctx.request;
 
@@ -57,14 +55,7 @@ const middleware = async (ctx: any, next: any) => {
     ctx.status = 200;
     ctx.body = cacheEntry.body;
     if (cacheHeaders) {
-      const headersToSet = cacheableHeaders.length
-        ? Object.fromEntries(
-            Object.entries(cacheEntry.headers).filter(([key]) =>
-              cacheableHeaders.includes(key.toLowerCase())
-            )
-          )
-        : cacheEntry.headers;
-      ctx.set(headersToSet);
+      ctx.set(cacheEntry.headers);
     }
     return;
   }
@@ -86,19 +77,16 @@ const middleware = async (ctx: any, next: any) => {
       return;
     }
 
-    const headersToStore = cacheHeaders
-      ? cacheableHeaders.length
-        ? Object.fromEntries(
-            Object.entries(ctx.response.headers).filter(([key]) =>
-              cacheableHeaders.includes(key.toLowerCase())
-            )
-          )
-        : ctx.response.headers
-      : null;
+    const headersToStore = getHeadersToStore(
+      ctx,
+      cacheHeaders,
+      cacheHeadersAllowList,
+      cacheHeadersDenyList
+    );
 
     if (ctx.body instanceof Stream) {
       const buf = await streamToBuffer(ctx.body);
-      const contentEncoding = ctx.response.headers['content-encoding']; // e.g., gzip, br, deflate
+      const contentEncoding = ctx.response.headers['content-encoding'];
       const decompressed = await decompressBuffer(buf, contentEncoding);
       const responseText = decodeBufferToText(decompressed);
 

@@ -55,7 +55,8 @@ In your Strapi project, navigate to `config/plugins.js` and add the following co
     redisClusterNodes: [], // If provided any cluster node (this list is not empty), initialize ioredis redis cluster client. Each object must have keys 'host' and 'port'. See https://ioredis.readthedocs.io/en/stable/README for references
     redisClusterOptions: {}, // Options for ioredis redis cluster client. redisOptions key is taken from redisConfig parameter above if not set here. See https://ioredis.readthedocs.io/en/stable/README for references
     cacheHeaders: true, // Plugin also stores response headers in the cache (set to false if you don't want to cache headers)
-    cacheableHeaders: ['content-security-policy', 'content-type'], // Headers to cache (must be lowercase, if empty array, all headers are cached, cacheHeaders must be true)
+    cacheHeadersDenyList: ['access-control-allow-origin', 'content-encoding'], // Headers to exclude from the cache (must be lowercase, if empty array, no headers are excluded, cacheHeaders must be true)
+    cacheHeadersAllowList: ['content-type', 'content-security-policy'] // Headers to include in the cache (must be lowercase, if empty array, all headers are cached, cacheHeaders must be true)
     cacheAuthorizedRequests: false, // Cache requests with authorization headers (set to true if you want to cache authorized requests)
     cacheGetTimeoutInMs: 1000, // Timeout for getting cached data in milliseconds (default is 1 seconds)
   },

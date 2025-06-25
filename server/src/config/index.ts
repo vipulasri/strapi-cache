@@ -11,7 +11,8 @@ export default {
     redisClusterNodes: [],
     redisClusterOptions: {},
     cacheHeaders: true,
-    cacheableHeaders: [],
+    cacheHeadersDenyList: [],
+    cacheHeadersAllowList: [],
     cacheAuthorizedRequests: false,
     cacheGetTimeoutInMs: 1000,
   }),
@@ -66,10 +67,16 @@ export default {
       throw new Error(`Invalid config: cacheHeaders must be a boolean`);
     }
     if (
-      !Array.isArray(config.cacheableHeaders) ||
-      config.cacheableHeaders.some((item) => typeof item !== 'string')
+      !Array.isArray(config.cacheHeadersDenyList) ||
+      config.cacheHeadersDenyList.some((item) => typeof item !== 'string')
     ) {
-      throw new Error(`Invalid config: cacheableHeaders must be an string array`);
+      throw new Error(`Invalid config: cacheHeadersDenyList must be an string array`);
+    }
+    if (
+      !Array.isArray(config.cacheHeadersAllowList) ||
+      config.cacheHeadersAllowList.some((item) => typeof item !== 'string')
+    ) {
+      throw new Error(`Invalid config: cacheHeadersAllowList must be an string array`);
     }
     if (typeof config.cacheAuthorizedRequests !== 'boolean') {
       throw new Error(`Invalid config: cacheAuthorizedRequests must be a boolean`);
