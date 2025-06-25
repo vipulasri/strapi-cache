@@ -8,8 +8,19 @@ const bootstrap = ({ strapi }: { strapi: Core.Strapi }) => {
   loggy.info('Initializing');
   try {
     const cacheService = strapi.plugin('strapi-cache').services.service as CacheService;
+    const autoPurgeCache = strapi.plugin('strapi-cache').config('autoPurgeCache') as boolean;
     const cacheStore = cacheService.getCacheInstance();
+
+    if (!cacheStore) {
+      loggy.error('Plugin could not be initialized');
+      return;
+    }
+
     cacheStore.init();
+
+    if (!autoPurgeCache) {
+      return;
+    }
 
     strapi.db.lifecycles.subscribe({
       async afterCreate(event) {
@@ -25,11 +36,6 @@ const bootstrap = ({ strapi }: { strapi: Core.Strapi }) => {
         await invalidateGraphqlCache(event, cacheStore, strapi);
       },
     });
-
-    if (!cacheStore) {
-      loggy.error('Plugin could not be initialized');
-      return;
-    }
   } catch (error) {
     loggy.error('Plugin could not be initialized');
     return;
