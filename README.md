@@ -1,9 +1,9 @@
 # 🧠 strapi-cache
 
-**A powerful LRU-Cache plugin for Strapi v5**  
+**A powerful LRU-Cache plugin for Strapi v5**
 Boost your API performance with automatic in-memory or Redis caching for REST and GraphQL requests.
 
-![npm version](https://img.shields.io/badge/version-1.5.0-blue)
+[![npm version](https://img.shields.io/npm/v/strapi-cache)](https://www.npmjs.com/package/strapi-cache)
 ![Strapi Version](https://img.shields.io/badge/strapi-v5-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 ![npm](https://img.shields.io/npm/dt/strapi-cache)
