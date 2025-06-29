@@ -31,7 +31,13 @@ function PurgeModal({ buttonText, keyToUse, buttonWidth, contentTypeName }: Purg
         const { data } = await get('/strapi-cache/cacheable-routes');
         return data;
       } catch (error) {
-        console.error('Error fetching cacheable routes:', error);
+        toggleNotification({
+          type: 'warning',
+          message: formatMessage({
+            id: 'strapi-cache.cache.routes.fetch-error',
+            defaultMessage: 'Unable to fetch cacheable routes. Cache purge may not work correctly.',
+          }),
+        });
         return undefined;
       }
     };
