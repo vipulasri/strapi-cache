@@ -46,11 +46,11 @@ export default {
       throw new Error(`Invalid config: provider must be 'memory' or 'redis'`);
     }
     if (config.provider === 'redis') {
-      if (
-        !config.redisConfig &&
-        (typeof config.redisConfig !== 'string' || typeof config.redisConfig !== 'object')
-      ) {
+      if (!config.redisConfig) {
         throw new Error(`Invalid config: redisConfig must be set when using redis provider`);
+      }
+      if (typeof config.redisConfig !== 'string' && typeof config.redisConfig !== 'object') {
+        throw new Error(`Invalid config: redisConfig must be a string or object when using redis provider`);
       }
       if (
         !Array.isArray(config.redisClusterNodes) ||
