@@ -3,7 +3,7 @@ export default {
     debug: false,
     max: 1000,
     ttl: 1000 * 60 * 60,
-    size: 1024 * 1014 * 10,
+    size: 1024 * 1024 * 10,
     allowStale: false,
     cacheableRoutes: [],
     provider: 'memory',
