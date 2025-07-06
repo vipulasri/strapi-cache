@@ -18,24 +18,22 @@ const bootstrap = ({ strapi }: { strapi: Core.Strapi }) => {
 
     cacheStore.init();
 
-    if (!autoPurgeCache) {
-      return;
+    if (autoPurgeCache) {
+      strapi.db.lifecycles.subscribe({
+        async afterCreate(event) {
+          await invalidateCache(event, cacheStore, strapi);
+          await invalidateGraphqlCache(event, cacheStore, strapi);
+        },
+        async afterUpdate(event) {
+          await invalidateCache(event, cacheStore, strapi);
+          await invalidateGraphqlCache(event, cacheStore, strapi);
+        },
+        async afterDelete(event) {
+          await invalidateCache(event, cacheStore, strapi);
+          await invalidateGraphqlCache(event, cacheStore, strapi);
+        },
+      });
     }
-
-    strapi.db.lifecycles.subscribe({
-      async afterCreate(event) {
-        await invalidateCache(event, cacheStore, strapi);
-        await invalidateGraphqlCache(event, cacheStore, strapi);
-      },
-      async afterUpdate(event) {
-        await invalidateCache(event, cacheStore, strapi);
-        await invalidateGraphqlCache(event, cacheStore, strapi);
-      },
-      async afterDelete(event) {
-        await invalidateCache(event, cacheStore, strapi);
-        await invalidateGraphqlCache(event, cacheStore, strapi);
-      },
-    });
   } catch (error) {
     loggy.error('Plugin could not be initialized');
     return;
