@@ -60,6 +60,7 @@ In your Strapi project, navigate to `config/plugins.js` and add the following co
     cacheAuthorizedRequests: false, // Cache requests with authorization headers (set to true if you want to cache authorized requests)
     cacheGetTimeoutInMs: 1000, // Timeout for getting cached data in milliseconds (default is 1 second)
     autoPurgeCache: true, // Automatically purge cache on content CRUD operations
+    autoPurgeCacheOnStart: true, // Automatically purge cache on Strapi startup
   },
 },
 ```
