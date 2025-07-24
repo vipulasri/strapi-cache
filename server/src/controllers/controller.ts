@@ -15,7 +15,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
   async purgeCacheByKey(ctx: Context) {
     const { key } = ctx.params;
     const service = strapi.plugin('strapi-cache').service('service') as CacheService;
-    const regex = new RegExp(`(^|\/)${key}(\/|\\?|$)`);
+    const regex = new RegExp(`(^|\/)?${key}(\/|\\?|$)`);
 
     await service.getCacheInstance().clearByRegexp([regex]);
 
