@@ -32,9 +32,35 @@ const middleware = async (ctx: Context, next: any) => {
     loggy.info(`HIT with key: ${key}`);
     ctx.status = 200;
     ctx.body = cacheEntry.body;
+
     if (cacheHeaders) {
       ctx.set(cacheEntry.headers);
+      // ctx.set('Access-Control-Allow-Origin', ctx.request.headers.origin || '*');
     }
+
+    // Get the global middlewares config
+    const middlewaresConfig = strapi.config.get('middlewares') as any[];
+    // Find the cors middleware
+    const corsMiddleware = middlewaresConfig.find((mw: any) => mw.name === 'strapi::cors');
+
+    if (corsMiddleware) {
+      const corsConfig = corsMiddleware?.config;
+      const origin = ctx?.request?.headers?.origin;
+      let allowedOrigins = corsConfig?.origin ?? '*'; // if corsConfig.origin is a string, convert it to an array
+
+      if (typeof allowedOrigins === 'string') {
+        allowedOrigins = [allowedOrigins];
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        ctx.set('Access-Control-Allow-Origin', origin);
+      } else if (typeof origin === 'undefined' || allowedOrigins.includes('*')) {
+        ctx.set('Access-Control-Allow-Origin', '*');
+      } else {
+        //do nothing
+      }
+    }
+
     return;
   }
 
