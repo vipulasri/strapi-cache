@@ -8,6 +8,7 @@ export class RedisCacheProvider implements CacheProvider {
   private initialized = false;
   private client!: Redis | Cluster;
   private cacheGetTimeoutInMs: number;
+  private keyPrefix: string;
 
   constructor(private strapi: Core.Strapi) { }
 
@@ -24,6 +25,7 @@ export class RedisCacheProvider implements CacheProvider {
       this.cacheGetTimeoutInMs = Number(
         this.strapi.plugin('strapi-cache').config('cacheGetTimeoutInMs')
       );
+      this.keyPrefix = this.strapi.plugin('strapi-cache').config('redisConfig')?.["keyPrefix"] as string | undefined ?? "";
       if (redisClusterNodes.length) {
         const redisClusterOptions: ClusterOptions =
           this.strapi.plugin('strapi-cache').config('redisClusterOptions');
@@ -86,8 +88,9 @@ export class RedisCacheProvider implements CacheProvider {
     if (!this.ready) return null;
 
     try {
-      loggy.info(`Redis PURGING KEY: ${key}`);
-      await this.client.del(key);
+      const relativeKey = key.slice(this.keyPrefix.length)
+      loggy.info(`Redis PURGING KEY: ${relativeKey}`);
+      await this.client.del(relativeKey);
       return true;
     } catch (error) {
       loggy.error(`Redis del error: ${error}`);
@@ -99,7 +102,7 @@ export class RedisCacheProvider implements CacheProvider {
     if (!this.ready) return null;
 
     try {
-      const keys = await this.client.keys('*');
+      const keys = await this.client.keys(`${this.keyPrefix}*`);
       return keys;
     } catch (error) {
       loggy.error(`Redis keys error: ${error}`);
@@ -111,6 +114,16 @@ export class RedisCacheProvider implements CacheProvider {
     if (!this.ready) return null;
 
     try {
+      if (this.keyPrefix) {
+        loggy.info(`Redis FLUSHING NAMESPACE: ${this.keyPrefix}`);
+        const keys = await this.keys();
+        if (!keys) return null;
+
+        const toDelete = keys.filter((key) => key.startsWith(this.keyPrefix));
+        await Promise.all(toDelete.map((key) => this.del(key)));
+        return true;
+      }
+
       loggy.info(`Redis FLUSHING ALL KEYS`);
       await this.client.flushdb();
       return true;

@@ -5,7 +5,13 @@ import { useIntl } from 'react-intl';
 function PurgeEntityButton() {
   const { formatMessage } = useIntl();
   const { id, isSingleType, contentType } = useContentManagerContext();
-  const keyToUse = isSingleType ? contentType?.info.singularName : id;
+  const apiPath = isSingleType ? contentType?.info.singularName : id;
+
+  if (!apiPath) {
+    return null;
+  }
+
+  const keyToUse = encodeURIComponent(apiPath);
   const contentTypeName = isSingleType
     ? contentType?.info.singularName
     : contentType?.info.pluralName;
