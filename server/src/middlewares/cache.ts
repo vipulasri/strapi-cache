@@ -37,27 +37,29 @@ const middleware = async (ctx: Context, next: any) => {
       ctx.set(cacheEntry.headers);
     }
 
-    // Get the global middlewares config
     const middlewaresConfig = strapi.config.get('middlewares') as any[];
-    // Find the cors middleware
     const corsMiddleware = middlewaresConfig.find((mw: any) => mw.name === 'strapi::cors');
 
     if (corsMiddleware) {
+      loggy.info('CORS middleware is set, checking allowed origins');
       const corsConfig = corsMiddleware?.config;
       const origin = ctx?.request?.headers?.origin;
-      let allowedOrigins = corsConfig?.origin ?? '*'; // if corsConfig.origin is a string, convert it to an array
+      let allowedOrigins = corsConfig?.origin ?? '*';
 
       if (typeof allowedOrigins === 'string') {
         allowedOrigins = [allowedOrigins];
       }
 
       if (allowedOrigins.includes(origin)) {
+        loggy.info(`Setting Access-Control-Allow-Origin to ${origin}`);
         ctx.set('Access-Control-Allow-Origin', origin);
       } else if (typeof origin === 'undefined' || allowedOrigins.includes('*')) {
+        loggy.info('No origin header or * in allowed origins, setting to *');
         ctx.set('Access-Control-Allow-Origin', '*');
-      } else {
-        //do nothing
       }
+    } else {
+      loggy.info('No CORS middleware set, setting to request origin or *');
+      ctx.set('Access-Control-Allow-Origin', ctx.request.headers.origin || '*');
     }
 
     return;
