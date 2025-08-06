@@ -35,7 +35,6 @@ const middleware = async (ctx: Context, next: any) => {
 
     if (cacheHeaders) {
       ctx.set(cacheEntry.headers);
-      // ctx.set('Access-Control-Allow-Origin', ctx.request.headers.origin || '*');
     }
 
     // Get the global middlewares config
