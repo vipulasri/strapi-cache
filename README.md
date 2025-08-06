@@ -96,34 +96,6 @@ All of these routes are protected by the policies `admin::isAuthenticatedAdmin` 
 
 If you encounter any issues, please feel free to open an issue on the [GitHub repo](https://github.com/TupiC/strapi-cache/issues/new).
 
-## 🛠️ Troubleshooting
-
-If you encounter an error like:
-
-```
-Access to fetch at 'http://your-backend.com' from origin 'http://your-origin.com' has been blocked by CORS policy:
-Request header field cache-control is not allowed by Access-Control-Allow-Headers in preflight response.
-```
-
-You might need to adjust your CORS middleware settings in Strapi:
-
-```javascript
-// config/middlewares.{js,ts}
-'strapi::cors';
-```
-
-with:
-
-```javascript
-// config/middlewares.{js,ts}
-{
-  name: "strapi::cors",
-  config: {
-    headers: ["Content-Type", "Authorization", "Cache-Control"], // Add 'Cache-Control' to the allowed headers
-  },
-},
-```
-
 ## 🛠️ Contributing
 
 Contributions are welcome! If you have suggestions or improvements, please open an issue or submit a pull request.
