@@ -57,7 +57,7 @@
     "react-router-dom": "^6.30.0",
     "styled-components": "^6.1.17",
     "typescript": "^5.8.3",
-    "vitest": "^3.1.1"
+    "vitest": "^2.1.5"
   },
   "peerDependencies": {
     "@strapi/sdk-plugin": "^5.3.2",
@@ -76,6 +76,9 @@
   "name": "strapi-cache",
   "description": "A LRU-Cache plugin for strapi v5",
   "license": "MIT",
+  "engines": {
+    "node": ">=20.17.0"
+  },
   "author": "TupiC <christoph.tupi@gmail.com>",
   "repository": {
     "type": "git",
